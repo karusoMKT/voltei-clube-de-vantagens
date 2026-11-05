@@ -142,6 +142,7 @@ export type Database = {
           id: string
           instagram: string | null
           phone: string | null
+          qr_token: string
           role: Database["public"]["Enums"]["user_role"]
         }
         Insert: {
@@ -150,6 +151,7 @@ export type Database = {
           id: string
           instagram?: string | null
           phone?: string | null
+          qr_token?: string
           role?: Database["public"]["Enums"]["user_role"]
         }
         Update: {
@@ -158,6 +160,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           phone?: string | null
+          qr_token?: string
           role?: Database["public"]["Enums"]["user_role"]
         }
         Relationships: [
@@ -327,13 +330,27 @@ export type Database = {
         }
         Returns: number
       }
-      finalizar_resgate: {
-        Args: { _entregar: boolean; _redemption: string }
-        Returns: undefined
+      buscar_cliente_por_telefone: {
+        Args: { _company_id: string; _telefone: string }
+        Returns: {
+          full_name: string
+          id: string
+          instagram: string
+          points_balance: number
+        }[]
       }
+      entregar_resgate: { Args: { _redemption_id: string }; Returns: undefined }
       is_admin: { Args: never; Returns: boolean }
       is_owner_of: { Args: { _company: string }; Returns: boolean }
       is_staff_of: { Args: { _company: string }; Returns: boolean }
+      lancar_compra: {
+        Args: {
+          _company_id: string
+          _customer_id: string
+          _valor_em_reais: number
+        }
+        Returns: number
+      }
       lancar_pontos: {
         Args: {
           _company: string
@@ -343,31 +360,10 @@ export type Database = {
         }
         Returns: number
       }
-      registrar_compra: {
-        Args: { _amount_reais: number; _company: string; _customer: string }
-        Returns: number
-      }
+      resgatar_premio: { Args: { _reward_id: string }; Returns: string }
       revisar_print: {
         Args: { _aprovar: boolean; _points?: number; _submission: string }
         Returns: undefined
-      }
-      solicitar_resgate: {
-        Args: { _reward: string }
-        Returns: {
-          code: string
-          company_id: string
-          created_at: string
-          customer_id: string
-          id: string
-          reward_id: string
-          status: Database["public"]["Enums"]["redemption_status"]
-        }
-        SetofOptions: {
-          from: "*"
-          to: "redemptions"
-          isOneToOne: true
-          isSetofReturn: false
-        }
       }
     }
     Enums: {
