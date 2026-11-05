@@ -14,16 +14,373 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      companies: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          plan: string
+          points_per_real: number
+          slug: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          plan?: string
+          points_per_real?: number
+          slug: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          plan?: string
+          points_per_real?: number
+          slug?: string
+        }
+        Relationships: []
+      }
+      memberships: {
+        Row: {
+          company_id: string
+          created_at: string
+          customer_id: string
+          points_balance: number
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          customer_id: string
+          points_balance?: number
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          customer_id?: string
+          points_balance?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memberships_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memberships_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photo_submissions: {
+        Row: {
+          company_id: string
+          created_at: string
+          customer_id: string
+          id: string
+          image_path: string
+          instagram_handle: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["photo_status"]
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          image_path: string
+          instagram_handle?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["photo_status"]
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          image_path?: string
+          instagram_handle?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["photo_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_submissions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photo_submissions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photo_submissions_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          company_id: string | null
+          full_name: string | null
+          id: string
+          instagram: string | null
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Insert: {
+          company_id?: string | null
+          full_name?: string | null
+          id: string
+          instagram?: string | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Update: {
+          company_id?: string | null
+          full_name?: string | null
+          id?: string
+          instagram?: string | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      redemptions: {
+        Row: {
+          code: string
+          company_id: string
+          created_at: string
+          customer_id: string
+          id: string
+          reward_id: string
+          status: Database["public"]["Enums"]["redemption_status"]
+        }
+        Insert: {
+          code: string
+          company_id: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          reward_id: string
+          status?: Database["public"]["Enums"]["redemption_status"]
+        }
+        Update: {
+          code?: string
+          company_id?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          reward_id?: string
+          status?: Database["public"]["Enums"]["redemption_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "redemptions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "redemptions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "redemptions_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rewards: {
+        Row: {
+          active: boolean
+          company_id: string
+          cost_points: number
+          cost_reais: number | null
+          id: string
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          company_id: string
+          cost_points: number
+          cost_reais?: number | null
+          id?: string
+          name: string
+        }
+        Update: {
+          active?: boolean
+          company_id?: string
+          cost_points?: number
+          cost_reais?: number | null
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rewards_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          amount_reais: number | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          id: string
+          points: number
+          type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Insert: {
+          amount_reais?: number | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          id?: string
+          points: number
+          type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Update: {
+          amount_reais?: number | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          id?: string
+          points?: number
+          type?: Database["public"]["Enums"]["transaction_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      _apply_points: {
+        Args: {
+          _company: string
+          _customer: string
+          _points: number
+          _reais: number
+          _type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Returns: number
+      }
+      finalizar_resgate: {
+        Args: { _entregar: boolean; _redemption: string }
+        Returns: undefined
+      }
+      is_admin: { Args: never; Returns: boolean }
+      is_owner_of: { Args: { _company: string }; Returns: boolean }
+      is_staff_of: { Args: { _company: string }; Returns: boolean }
+      lancar_pontos: {
+        Args: {
+          _company: string
+          _customer: string
+          _points: number
+          _type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Returns: number
+      }
+      registrar_compra: {
+        Args: { _amount_reais: number; _company: string; _customer: string }
+        Returns: number
+      }
+      revisar_print: {
+        Args: { _aprovar: boolean; _points?: number; _submission: string }
+        Returns: undefined
+      }
+      solicitar_resgate: {
+        Args: { _reward: string }
+        Returns: {
+          code: string
+          company_id: string
+          created_at: string
+          customer_id: string
+          id: string
+          reward_id: string
+          status: Database["public"]["Enums"]["redemption_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "redemptions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
-      [_ in never]: never
+      photo_status: "pendente" | "aprovada" | "recusada"
+      redemption_status: "pendente" | "entregue" | "cancelado"
+      transaction_type:
+        | "compra"
+        | "foto"
+        | "google"
+        | "indicacao"
+        | "resgate"
+        | "ajuste"
+      user_role: "cliente" | "funcionario" | "dono" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +507,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      photo_status: ["pendente", "aprovada", "recusada"],
+      redemption_status: ["pendente", "entregue", "cancelado"],
+      transaction_type: [
+        "compra",
+        "foto",
+        "google",
+        "indicacao",
+        "resgate",
+        "ajuste",
+      ],
+      user_role: ["cliente", "funcionario", "dono", "admin"],
+    },
   },
 } as const
