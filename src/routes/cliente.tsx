@@ -1,10 +1,38 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { Home, Gift, QrCode, User } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/cliente")({ component: Layout });
+export const Route = createFileRoute("/cliente")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) throw redirect({ to: "/entrar" });
+    return { userId: data.user.id };
+  },
+  component: Layout,
+});
 
 function Layout() {
+  const { userId } = Route.useRouteContext();
+  const qc = useQueryClient();
+
+  // Saldo, histórico e resgates atualizam sozinhos
+  useEffect(() => {
+    const channel = supabase
+      .channel(`cliente-${userId}-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "memberships", filter: `customer_id=eq.${userId}` },
+        () => qc.invalidateQueries({ queryKey: ["cliente"] }))
+      .on("postgres_changes", { event: "*", schema: "public", table: "transactions", filter: `customer_id=eq.${userId}` },
+        () => qc.invalidateQueries({ queryKey: ["cliente"] }))
+      .on("postgres_changes", { event: "*", schema: "public", table: "redemptions", filter: `customer_id=eq.${userId}` },
+        () => qc.invalidateQueries({ queryKey: ["cliente"] }))
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [userId, qc]);
+
   return (
     <AppShell
       area="Cliente"
