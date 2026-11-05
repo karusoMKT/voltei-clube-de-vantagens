@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
 });
 
 const areas = [
-  { to: "/cliente", label: "Sou cliente", cls: "bg-primary text-primary-foreground" },
+  { to: "/entrar", label: "Sou cliente", cls: "bg-primary text-primary-foreground" },
   { to: "/empresa", label: "Sou empresa", cls: "bg-accent text-accent-foreground" },
   { to: "/admin", label: "Administração", cls: "border border-border bg-card text-foreground" },
 ] as const;

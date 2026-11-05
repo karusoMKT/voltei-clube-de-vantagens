@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ClienteRouteImport } from './routes/cliente'
 import { Route as EmpresaRouteImport } from './routes/empresa'
+import { Route as EntrarRouteImport } from './routes/entrar'
+import { Route as CSlugRouteImport } from './routes/c.$slug'
 import { Route as ClienteIndexRouteImport } from './routes/cliente.index'
 import { Route as ClientePerfilRouteImport } from './routes/cliente.perfil'
 import { Route as ClientePremiosRouteImport } from './routes/cliente.premios'
@@ -40,6 +42,16 @@ const ClienteRoute = ClienteRouteImport.update({
 const EmpresaRoute = EmpresaRouteImport.update({
   id: '/empresa',
   path: '/empresa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntrarRoute = EntrarRouteImport.update({
+  id: '/entrar',
+  path: '/entrar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CSlugRoute = CSlugRouteImport.update({
+  id: '/c/$slug',
+  path: '/c/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClienteIndexRoute = ClienteIndexRouteImport.update({
@@ -88,6 +100,8 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/cliente': typeof ClienteRouteWithChildren
   '/empresa': typeof EmpresaRouteWithChildren
+  '/entrar': typeof EntrarRoute
+  '/c/$slug': typeof CSlugRoute
   '/cliente/perfil': typeof ClientePerfilRoute
   '/cliente/premios': typeof ClientePremiosRoute
   '/cliente/qr': typeof ClienteQrRoute
@@ -100,6 +114,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/entrar': typeof EntrarRoute
+  '/c/$slug': typeof CSlugRoute
   '/cliente/perfil': typeof ClientePerfilRoute
   '/cliente/premios': typeof ClientePremiosRoute
   '/cliente/qr': typeof ClienteQrRoute
@@ -115,6 +131,8 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/cliente': typeof ClienteRouteWithChildren
   '/empresa': typeof EmpresaRouteWithChildren
+  '/entrar': typeof EntrarRoute
+  '/c/$slug': typeof CSlugRoute
   '/cliente/perfil': typeof ClientePerfilRoute
   '/cliente/premios': typeof ClientePremiosRoute
   '/cliente/qr': typeof ClienteQrRoute
@@ -131,6 +149,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cliente'
     | '/empresa'
+    | '/entrar'
+    | '/c/$slug'
     | '/cliente/perfil'
     | '/cliente/premios'
     | '/cliente/qr'
@@ -143,6 +163,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/entrar'
+    | '/c/$slug'
     | '/cliente/perfil'
     | '/cliente/premios'
     | '/cliente/qr'
@@ -157,6 +179,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cliente'
     | '/empresa'
+    | '/entrar'
+    | '/c/$slug'
     | '/cliente/perfil'
     | '/cliente/premios'
     | '/cliente/qr'
@@ -172,6 +196,8 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ClienteRoute: typeof ClienteRouteWithChildren
   EmpresaRoute: typeof EmpresaRouteWithChildren
+  EntrarRoute: typeof EntrarRoute
+  CSlugRoute: typeof CSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -202,6 +228,20 @@ declare module '@tanstack/react-router' {
       path: '/empresa'
       fullPath: '/empresa'
       preLoaderRoute: typeof EmpresaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entrar': {
+      id: '/entrar'
+      path: '/entrar'
+      fullPath: '/entrar'
+      preLoaderRoute: typeof EntrarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$slug': {
+      id: '/c/$slug'
+      path: '/c/$slug'
+      fullPath: '/c/$slug'
+      preLoaderRoute: typeof CSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cliente/': {
@@ -302,6 +342,8 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ClienteRoute: ClienteRouteWithChildren,
   EmpresaRoute: EmpresaRouteWithChildren,
+  EntrarRoute: EntrarRoute,
+  CSlugRoute: CSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
