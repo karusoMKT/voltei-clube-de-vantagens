@@ -1,10 +1,35 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { Store, CheckCircle2, Gift, BarChart3 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { supabase } from "@/integrations/supabase/client";
+import { getSessionInfo, isStaff } from "@/lib/session";
 
-export const Route = createFileRoute("/empresa")({ component: Layout });
+export const Route = createFileRoute("/empresa")({
+  ssr: false,
+  beforeLoad: async () => {
+    const info = await getSessionInfo();
+    if (!info) throw redirect({ to: "/entrar" });
+    if (!isStaff(info.role) || !info.companyId) throw redirect({ to: "/cliente" });
+    return { userId: info.userId, companyId: info.companyId };
+  },
+  component: Layout,
+});
 
 function Layout() {
+  const { companyId } = Route.useRouteContext();
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`empresa-${companyId}-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "redemptions", filter: `company_id=eq.${companyId}` },
+        () => qc.invalidateQueries({ queryKey: ["empresa"] }))
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [companyId, qc]);
+
   return (
     <AppShell
       area="Empresa"

@@ -4,13 +4,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Home, Gift, QrCode, User } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import { getSessionInfo, isStaff } from "@/lib/session";
 
 export const Route = createFileRoute("/cliente")({
   ssr: false,
   beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/entrar" });
-    return { userId: data.user.id };
+    const info = await getSessionInfo();
+    if (!info) throw redirect({ to: "/entrar" });
+    if (isStaff(info.role)) throw redirect({ to: "/empresa" });
+    return { userId: info.userId };
   },
   component: Layout,
 });
