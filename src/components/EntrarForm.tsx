@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { criarConta } from "@/lib/auth.functions";
 import { loginSchema, maskPhone, phoneToEmail, signupSchema } from "@/lib/cadastro";
 
-type Errors = Partial<Record<"fullName" | "phone" | "instagram" | "pin" | "form", string>>;
+type Errors = Partial<Record<"fullName" | "phone" | "instagram" | "pin" | "form", string | undefined>>;
 
-function Field({ label, error, hint, children }: { label: string; error?: string; hint?: string; children: React.ReactNode }) {
+function Field({ label, error, hint, children }: { label: string; error?: string | undefined; hint?: string; children: React.ReactNode }) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-sm font-bold text-foreground">{label}</span>
@@ -31,7 +31,7 @@ function firstErrors(issues: { path: (string | number)[]; message: string }[]): 
   return out;
 }
 
-export function EntrarForm({ slug, companyName }: { slug?: string; companyName?: string }) {
+export function EntrarForm({ slug, companyName }: { slug?: string | undefined; companyName?: string | undefined }) {
   const [mode, setMode] = useState<"cadastro" | "entrada">("cadastro");
   const [form, setForm] = useState({ fullName: "", phone: "", instagram: "", pin: "" });
   const [errors, setErrors] = useState<Errors>({});
