@@ -10,33 +10,168 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ClienteRouteImport } from './routes/cliente'
+import { Route as EmpresaRouteImport } from './routes/empresa'
+import { Route as ClienteIndexRouteImport } from './routes/cliente.index'
+import { Route as ClientePerfilRouteImport } from './routes/cliente.perfil'
+import { Route as ClientePremiosRouteImport } from './routes/cliente.premios'
+import { Route as ClienteQrRouteImport } from './routes/cliente.qr'
+import { Route as EmpresaIndexRouteImport } from './routes/empresa.index'
+import { Route as EmpresaAprovarRouteImport } from './routes/empresa.aprovar'
+import { Route as EmpresaPremiosRouteImport } from './routes/empresa.premios'
+import { Route as EmpresaResumoRouteImport } from './routes/empresa.resumo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClienteRoute = ClienteRouteImport.update({
+  id: '/cliente',
+  path: '/cliente',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresaRoute = EmpresaRouteImport.update({
+  id: '/empresa',
+  path: '/empresa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClienteIndexRoute = ClienteIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ClienteRoute,
+} as any)
+const ClientePerfilRoute = ClientePerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => ClienteRoute,
+} as any)
+const ClientePremiosRoute = ClientePremiosRouteImport.update({
+  id: '/premios',
+  path: '/premios',
+  getParentRoute: () => ClienteRoute,
+} as any)
+const ClienteQrRoute = ClienteQrRouteImport.update({
+  id: '/qr',
+  path: '/qr',
+  getParentRoute: () => ClienteRoute,
+} as any)
+const EmpresaIndexRoute = EmpresaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EmpresaRoute,
+} as any)
+const EmpresaAprovarRoute = EmpresaAprovarRouteImport.update({
+  id: '/aprovar',
+  path: '/aprovar',
+  getParentRoute: () => EmpresaRoute,
+} as any)
+const EmpresaPremiosRoute = EmpresaPremiosRouteImport.update({
+  id: '/premios',
+  path: '/premios',
+  getParentRoute: () => EmpresaRoute,
+} as any)
+const EmpresaResumoRoute = EmpresaResumoRouteImport.update({
+  id: '/resumo',
+  path: '/resumo',
+  getParentRoute: () => EmpresaRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/cliente': typeof ClienteRouteWithChildren
+  '/empresa': typeof EmpresaRouteWithChildren
+  '/cliente/perfil': typeof ClientePerfilRoute
+  '/cliente/premios': typeof ClientePremiosRoute
+  '/cliente/qr': typeof ClienteQrRoute
+  '/empresa/aprovar': typeof EmpresaAprovarRoute
+  '/empresa/premios': typeof EmpresaPremiosRoute
+  '/empresa/resumo': typeof EmpresaResumoRoute
+  '/cliente/': typeof ClienteIndexRoute
+  '/empresa/': typeof EmpresaIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/cliente/perfil': typeof ClientePerfilRoute
+  '/cliente/premios': typeof ClientePremiosRoute
+  '/cliente/qr': typeof ClienteQrRoute
+  '/empresa/aprovar': typeof EmpresaAprovarRoute
+  '/empresa/premios': typeof EmpresaPremiosRoute
+  '/empresa/resumo': typeof EmpresaResumoRoute
+  '/cliente': typeof ClienteIndexRoute
+  '/empresa': typeof EmpresaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/cliente': typeof ClienteRouteWithChildren
+  '/empresa': typeof EmpresaRouteWithChildren
+  '/cliente/perfil': typeof ClientePerfilRoute
+  '/cliente/premios': typeof ClientePremiosRoute
+  '/cliente/qr': typeof ClienteQrRoute
+  '/empresa/aprovar': typeof EmpresaAprovarRoute
+  '/empresa/premios': typeof EmpresaPremiosRoute
+  '/empresa/resumo': typeof EmpresaResumoRoute
+  '/cliente/': typeof ClienteIndexRoute
+  '/empresa/': typeof EmpresaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/cliente'
+    | '/empresa'
+    | '/cliente/perfil'
+    | '/cliente/premios'
+    | '/cliente/qr'
+    | '/empresa/aprovar'
+    | '/empresa/premios'
+    | '/empresa/resumo'
+    | '/cliente/'
+    | '/empresa/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/cliente/perfil'
+    | '/cliente/premios'
+    | '/cliente/qr'
+    | '/empresa/aprovar'
+    | '/empresa/premios'
+    | '/empresa/resumo'
+    | '/cliente'
+    | '/empresa'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/cliente'
+    | '/empresa'
+    | '/cliente/perfil'
+    | '/cliente/premios'
+    | '/cliente/qr'
+    | '/empresa/aprovar'
+    | '/empresa/premios'
+    | '/empresa/resumo'
+    | '/cliente/'
+    | '/empresa/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  ClienteRoute: typeof ClienteRouteWithChildren
+  EmpresaRoute: typeof EmpresaRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +183,125 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cliente': {
+      id: '/cliente'
+      path: '/cliente'
+      fullPath: '/cliente'
+      preLoaderRoute: typeof ClienteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresa': {
+      id: '/empresa'
+      path: '/empresa'
+      fullPath: '/empresa'
+      preLoaderRoute: typeof EmpresaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cliente/': {
+      id: '/cliente/'
+      path: '/'
+      fullPath: '/cliente/'
+      preLoaderRoute: typeof ClienteIndexRouteImport
+      parentRoute: typeof ClienteRoute
+    }
+    '/cliente/perfil': {
+      id: '/cliente/perfil'
+      path: '/perfil'
+      fullPath: '/cliente/perfil'
+      preLoaderRoute: typeof ClientePerfilRouteImport
+      parentRoute: typeof ClienteRoute
+    }
+    '/cliente/premios': {
+      id: '/cliente/premios'
+      path: '/premios'
+      fullPath: '/cliente/premios'
+      preLoaderRoute: typeof ClientePremiosRouteImport
+      parentRoute: typeof ClienteRoute
+    }
+    '/cliente/qr': {
+      id: '/cliente/qr'
+      path: '/qr'
+      fullPath: '/cliente/qr'
+      preLoaderRoute: typeof ClienteQrRouteImport
+      parentRoute: typeof ClienteRoute
+    }
+    '/empresa/': {
+      id: '/empresa/'
+      path: '/'
+      fullPath: '/empresa/'
+      preLoaderRoute: typeof EmpresaIndexRouteImport
+      parentRoute: typeof EmpresaRoute
+    }
+    '/empresa/aprovar': {
+      id: '/empresa/aprovar'
+      path: '/aprovar'
+      fullPath: '/empresa/aprovar'
+      preLoaderRoute: typeof EmpresaAprovarRouteImport
+      parentRoute: typeof EmpresaRoute
+    }
+    '/empresa/premios': {
+      id: '/empresa/premios'
+      path: '/premios'
+      fullPath: '/empresa/premios'
+      preLoaderRoute: typeof EmpresaPremiosRouteImport
+      parentRoute: typeof EmpresaRoute
+    }
+    '/empresa/resumo': {
+      id: '/empresa/resumo'
+      path: '/resumo'
+      fullPath: '/empresa/resumo'
+      preLoaderRoute: typeof EmpresaResumoRouteImport
+      parentRoute: typeof EmpresaRoute
+    }
   }
 }
 
+interface ClienteRouteChildren {
+  ClientePerfilRoute: typeof ClientePerfilRoute
+  ClientePremiosRoute: typeof ClientePremiosRoute
+  ClienteQrRoute: typeof ClienteQrRoute
+  ClienteIndexRoute: typeof ClienteIndexRoute
+}
+
+const ClienteRouteChildren: ClienteRouteChildren = {
+  ClientePerfilRoute: ClientePerfilRoute,
+  ClientePremiosRoute: ClientePremiosRoute,
+  ClienteQrRoute: ClienteQrRoute,
+  ClienteIndexRoute: ClienteIndexRoute,
+}
+
+const ClienteRouteWithChildren =
+  ClienteRoute._addFileChildren(ClienteRouteChildren)
+
+interface EmpresaRouteChildren {
+  EmpresaAprovarRoute: typeof EmpresaAprovarRoute
+  EmpresaPremiosRoute: typeof EmpresaPremiosRoute
+  EmpresaResumoRoute: typeof EmpresaResumoRoute
+  EmpresaIndexRoute: typeof EmpresaIndexRoute
+}
+
+const EmpresaRouteChildren: EmpresaRouteChildren = {
+  EmpresaAprovarRoute: EmpresaAprovarRoute,
+  EmpresaPremiosRoute: EmpresaPremiosRoute,
+  EmpresaResumoRoute: EmpresaResumoRoute,
+  EmpresaIndexRoute: EmpresaIndexRoute,
+}
+
+const EmpresaRouteWithChildren =
+  EmpresaRoute._addFileChildren(EmpresaRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  ClienteRoute: ClienteRouteWithChildren,
+  EmpresaRoute: EmpresaRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
