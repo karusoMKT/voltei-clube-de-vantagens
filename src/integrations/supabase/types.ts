@@ -355,6 +355,10 @@ export type Database = {
         Returns: number
       }
       aprovar_foto: { Args: { _submission_id: string }; Returns: number }
+      ativar_premio: {
+        Args: { _active: boolean; _reward_id: string }
+        Returns: undefined
+      }
       buscar_cliente_por_telefone: {
         Args: { _company_id: string; _telefone: string }
         Returns: {
@@ -363,6 +367,15 @@ export type Database = {
           instagram: string
           points_balance: number
         }[]
+      }
+      criar_premio: {
+        Args: {
+          _company_id: string
+          _cost_points: number
+          _cost_reais: number
+          _name: string
+        }
+        Returns: string
       }
       entregar_resgate: { Args: { _redemption_id: string }; Returns: undefined }
       enviar_foto: {
@@ -392,8 +405,13 @@ export type Database = {
       }
       recusar_foto: { Args: { _submission_id: string }; Returns: undefined }
       resgatar_premio: { Args: { _reward_id: string }; Returns: string }
+      resumo_empresa: { Args: { _company_id: string }; Returns: Json }
       revisar_print: {
         Args: { _aprovar: boolean; _points?: number; _submission: string }
+        Returns: undefined
+      }
+      salvar_regra_pontos: {
+        Args: { _company_id: string; _points_per_real: number }
         Returns: undefined
       }
     }

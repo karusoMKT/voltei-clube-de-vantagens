@@ -33,3 +33,5 @@ use the editor.
 - Keep repeatable access-control tests alongside existing tests; opt-in live checks use environment-injected test tokens and never store credentials in source.
 - Photo files go through authenticated server validation before privileged storage upload; database RPCs enforce review limits atomically, and reads use user-scoped private storage access.
 - Photo approval days use America/Sao_Paulo so daily limits follow the Brazilian store calendar.
+- Company reward and rate mutations use staff-authorized RPCs; monthly summaries aggregate in Postgres with RLS to avoid row-limit truncation.
+- Monthly summaries use America/Sao_Paulo; member count is all current members, positive point transactions and redemption creations count in the month, and never-purchasers become inactive after their membership is older than the inactivity window.

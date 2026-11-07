@@ -1,5 +1,16 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { PageTitle } from "@/components/AppShell";
+import { useServerFn } from "@tanstack/react-start";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Gift, Plus, Save, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Empty, Loading } from "@/components/Empty";
+import { getCompanyRewards, saveCompanyRate, createCompanyReward, toggleCompanyReward } from "@/lib/company-panels.functions";
+import { rateSchema, rewardSchema, rewardReturn } from "@/lib/company-panels";
+import { maskReais, parseReais } from "@/lib/caixa";
 
 export const Route = createFileRoute("/empresa/premios")({
   head: () => ({
@@ -7,14 +18,79 @@ export const Route = createFileRoute("/empresa/premios")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { title: "Prêmios da loja · Voltei" },
-      { name: "description", content: "Prêmios no Voltei." },
+      { name: "description", content: "Defina a regra de pontos e acompanhe o retorno dos prêmios da sua loja." },
       { property: "og:title", content: "Prêmios da loja · Voltei" },
-      { property: "og:description", content: "Prêmios no Voltei." },
+      { property: "og:description", content: "Defina a regra de pontos e acompanhe o retorno dos prêmios da sua loja." },
     ],
   }),
   component: EmpresaPremios,
 });
 
 function EmpresaPremios() {
-  return <PageTitle title="Prêmios" />;
+  const { companyId } = Route.useRouteContext();
+  const qc = useQueryClient();
+  const fetchRewards = useServerFn(getCompanyRewards);
+  const saveRate = useServerFn(saveCompanyRate);
+  const createReward = useServerFn(createCompanyReward);
+  const toggleReward = useServerFn(toggleCompanyReward);
+  const { data, isPending, error } = useQuery({ queryKey: ["empresa", "premios", companyId], queryFn: () => fetchRewards({ data: { companyId } }) });
+  const [rate, setRate] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ name: "", costReais: "", costPoints: "" });
+  const [formError, setFormError] = useState<string | null>(null);
+  const refresh = () => { qc.invalidateQueries({ queryKey: ["empresa"] }); qc.invalidateQueries({ queryKey: ["cliente"] }); };
+  const rateMutation = useMutation({
+    mutationFn: async (value: number) => { const result = await saveRate({ data: { companyId, rate: value } }); if (!result.ok) throw new Error(result.message); return result.message; },
+    onSuccess: (msg) => { setMessage(msg); setRate(null); refresh(); }, onError: (e) => setMessage(e.message),
+  });
+  const createMutation = useMutation({
+    mutationFn: async (values: { name: string; costReais: number; costPoints: number }) => { const result = await createReward({ data: { ...values, companyId } }); if (!result.ok) throw new Error(result.message); return result.message; },
+    onSuccess: (msg) => { setMessage(msg); setOpen(false); setForm({ name: "", costReais: "", costPoints: "" }); refresh(); }, onError: (e) => setFormError(e.message),
+  });
+  const toggleMutation = useMutation({
+    mutationFn: async (values: { rewardId: string; active: boolean }) => { const result = await toggleReward({ data: values }); if (!result.ok) throw new Error(result.message); return result.message; },
+    onSuccess: (msg) => { setMessage(msg); refresh(); }, onError: (e) => setMessage(e.message),
+  });
+  if (isPending) return <Loading />;
+  if (error || !data) return <div role="alert" className="px-5 pt-6">{error?.message ?? "Não conseguimos carregar os prêmios."}</div>;
+  const money = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const displayRate = rate ?? String(data.company.points_per_real).replace(".", ",");
+  return <div className="space-y-5 px-5 pt-6">
+    <h1 className="text-3xl font-extrabold">Seus prêmios</h1>
+    <form className="border-y border-border py-4" onSubmit={(e) => {
+      e.preventDefault(); const parsed = rateSchema.safeParse(Number(displayRate.replace(",", ".")));
+      if (!parsed.success) { setMessage(parsed.error.issues[0]?.message ?? "Confira a regra de pontos."); return; }
+      rateMutation.mutate(parsed.data);
+    }}>
+      <label htmlFor="points-rate" className="mb-3 block font-extrabold">Regra de pontos</label>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-bold">R$ 1 =</span><Input id="points-rate" aria-label="Pontos por real" inputMode="decimal" maxLength={8} value={displayRate} onChange={(e) => setRate(e.target.value.replace(/[^\d,.]/g, ""))} className="h-12 w-20 rounded-2xl bg-card text-center font-extrabold text-primary" /><span className="text-sm font-semibold">ponto(s)</span>
+        <Button type="submit" variant="secondary" className="ml-auto h-12 rounded-2xl" disabled={rateMutation.isPending}><Save />Salvar</Button>
+      </div>
+    </form>
+    <p className="text-sm text-muted-foreground">Retorno é o custo do prêmio dividido pelo gasto do cliente. Ideal: 3% a 8%.</p>
+    {message && <p role="status" className="rounded-2xl bg-secondary p-4 font-bold">{message}</p>}
+    <Button variant="hero" size="xl" onClick={() => { setFormError(null); setOpen(true); }}><Plus />Novo prêmio</Button>
+    {!data.rewards.length ? <Empty>Nenhum prêmio cadastrado ainda.</Empty> : <ul className="space-y-3">
+      {data.rewards.map((r) => {
+        const ret = rewardReturn(r.cost_reais, r.cost_points, data.company.points_per_real);
+        return <li key={r.id} className={`rounded-3xl border border-border bg-card p-4 ${r.active ? "" : "opacity-70"}`}>
+          <div className="flex items-start gap-3"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-cream text-primary"><Gift className="h-6 w-6" /></span><div className="min-w-0 flex-1"><h2 className="break-words font-extrabold">{r.name}</h2><p className="text-sm text-muted-foreground">{r.cost_points.toLocaleString("pt-BR")} pontos · {r.cost_reais === null ? "Custo não informado" : money(r.cost_reais)}</p></div></div>
+          <div className="mt-3 flex flex-wrap items-center gap-2"><span className="text-sm font-semibold">Retorno {ret ? `${(ret.ratio * 100).toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%` : "—"}</span>{ret && <span className={`rounded-full px-3 py-1 text-xs font-extrabold ${ret.label === "Alto" ? "bg-cream" : "bg-secondary text-primary"}`}>{ret.label}</span>}</div>
+          {ret?.label === "Alto" && <p className="mt-2 flex items-center gap-2 text-sm font-semibold"><AlertTriangle className="h-4 w-4 shrink-0 text-primary" />Pode pesar no seu caixa.</p>}
+          <label className="mt-3 flex min-h-12 cursor-pointer items-center justify-between border-t border-border pt-2 text-sm font-bold"><span>{r.active ? "Ativo" : "Desativado"}</span><span className="flex min-h-12 min-w-12 items-center justify-end"><Switch aria-label={`Ativar ${r.name}`} checked={r.active} disabled={toggleMutation.isPending} onCheckedChange={(active) => toggleMutation.mutate({ rewardId: r.id, active })} /></span></label>
+        </li>;
+      })}
+    </ul>}
+    <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-w-sm rounded-3xl"><DialogTitle className="text-xl font-extrabold">Novo prêmio</DialogTitle><DialogDescription>Um motivo a mais para voltar.</DialogDescription>
+      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setFormError(null); const parsed = rewardSchema.safeParse({ name: form.name, costReais: form.costReais ? parseReais(form.costReais) : NaN, costPoints: Number(form.costPoints) }); if (!parsed.success) { setFormError(parsed.error.issues[0]?.message ?? "Confira os custos do prêmio."); return; } createMutation.mutate(parsed.data); }}>
+        <label className="block text-sm font-bold">Nome do prêmio<Input autoFocus maxLength={100} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="mt-2 h-12 rounded-2xl" /></label>
+        <label className="block text-sm font-bold">Custo em reais<Input inputMode="decimal" placeholder="0,00" value={form.costReais} onChange={(e) => setForm({ ...form, costReais: maskReais(e.target.value) })} className="mt-2 h-12 rounded-2xl" /></label>
+        <label className="block text-sm font-bold">Custo em pontos<Input inputMode="numeric" maxLength={9} value={form.costPoints} onChange={(e) => setForm({ ...form, costPoints: e.target.value.replace(/\D/g, "") })} className="mt-2 h-12 rounded-2xl" /></label>
+        {formError && <p role="alert" className="rounded-2xl bg-cream p-3 text-sm font-semibold">{formError}</p>}
+        <Button type="submit" variant="hero" size="xl" disabled={createMutation.isPending}><Plus />{createMutation.isPending ? "Salvando…" : "Criar prêmio"}</Button>
+      </form>
+    </DialogContent></Dialog>
+  </div>;
 }
