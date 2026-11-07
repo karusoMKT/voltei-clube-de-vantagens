@@ -9,7 +9,7 @@
 - [x] Testar regras e fluxo completo: 7 testes de acesso reais; envio, recusa, aprovação, +30 pontos e bloqueio diário verificados.
 
 # Prêmios e Resumo da empresa
-- [ ] Proteger edição de regras e prêmios pela equipe da própria loja.
-- [ ] Completar lista de prêmios, retorno e cadastro.
-- [ ] Completar indicadores mensais e contatos dos clientes ausentes.
-- [ ] Testar cálculos, isolamento e fluxos reais.
+- [x] Proteger edição de regras e prêmios pela equipe da própria loja.
+- [x] Completar lista de prêmios, retorno e cadastro.
+- [x] Completar indicadores mensais e contatos dos clientes ausentes.
+- [x] Testar cálculos, isolamento e fluxos reais: 7 testes locais e 6 de acesso reais; regra, cadastro, ativação, resumo e mensagem de WhatsApp verificados.
