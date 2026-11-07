@@ -22,6 +22,7 @@ export type Database = {
           name: string
           plan: string
           points_per_real: number
+          points_photo: number
           slug: string
         }
         Insert: {
@@ -31,6 +32,7 @@ export type Database = {
           name: string
           plan?: string
           points_per_real?: number
+          points_photo?: number
           slug: string
         }
         Update: {
@@ -40,6 +42,7 @@ export type Database = {
           name?: string
           plan?: string
           points_per_real?: number
+          points_photo?: number
           slug?: string
         }
         Relationships: []
@@ -88,6 +91,7 @@ export type Database = {
           id: string
           image_path: string
           instagram_handle: string | null
+          reviewed_at: string | null
           reviewed_by: string | null
           status: Database["public"]["Enums"]["photo_status"]
         }
@@ -98,6 +102,7 @@ export type Database = {
           id?: string
           image_path: string
           instagram_handle?: string | null
+          reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["photo_status"]
         }
@@ -108,6 +113,7 @@ export type Database = {
           id?: string
           image_path?: string
           instagram_handle?: string | null
+          reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["photo_status"]
         }
@@ -348,6 +354,7 @@ export type Database = {
         }
         Returns: number
       }
+      aprovar_foto: { Args: { _submission_id: string }; Returns: number }
       buscar_cliente_por_telefone: {
         Args: { _company_id: string; _telefone: string }
         Returns: {
@@ -358,6 +365,10 @@ export type Database = {
         }[]
       }
       entregar_resgate: { Args: { _redemption_id: string }; Returns: undefined }
+      enviar_foto: {
+        Args: { _company_id: string; _image_path: string }
+        Returns: string
+      }
       is_admin: { Args: never; Returns: boolean }
       is_customer: { Args: never; Returns: boolean }
       is_owner_of: { Args: { _company: string }; Returns: boolean }
@@ -379,6 +390,7 @@ export type Database = {
         }
         Returns: number
       }
+      recusar_foto: { Args: { _submission_id: string }; Returns: undefined }
       resgatar_premio: { Args: { _reward_id: string }; Returns: string }
       revisar_print: {
         Args: { _aprovar: boolean; _points?: number; _submission: string }

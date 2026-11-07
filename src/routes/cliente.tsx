@@ -31,6 +31,8 @@ function Layout() {
         () => qc.invalidateQueries({ queryKey: ["cliente"] }))
       .on("postgres_changes", { event: "*", schema: "public", table: "redemptions", filter: `customer_id=eq.${userId}` },
         () => qc.invalidateQueries({ queryKey: ["cliente"] }))
+      .on("postgres_changes", { event: "*", schema: "public", table: "photo_submissions", filter: `customer_id=eq.${userId}` },
+        () => qc.invalidateQueries({ queryKey: ["cliente"] }))
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [userId, qc]);

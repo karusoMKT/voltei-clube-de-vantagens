@@ -15,10 +15,10 @@ export const clienteQuery = queryOptions({
   queryFn: async () => {
     const id = await uid();
     const { data: profile, error } = await supabase
-      .from("profiles").select("id, full_name, qr_token").eq("id", id).single();
+      .from("profiles").select("id, full_name, qr_token, instagram").eq("id", id).single();
     if (error) throw error;
     const { data: m } = await supabase
-      .from("memberships").select("company_id, points_balance, companies(name)")
+      .from("memberships").select("company_id, points_balance, companies(name, points_photo)")
       .eq("customer_id", id).order("created_at").limit(1).maybeSingle();
     let rewards: Reward[] = [];
     if (m) {
@@ -28,7 +28,7 @@ export const clienteQuery = queryOptions({
     }
     return {
       profile,
-      membership: m ? { companyId: m.company_id, balance: m.points_balance, companyName: m.companies?.name ?? "" } : null,
+      membership: m ? { companyId: m.company_id, balance: m.points_balance, companyName: m.companies?.name ?? "", photoPoints: m.companies?.points_photo ?? 30 } : null,
       rewards,
     };
   },
@@ -41,6 +41,18 @@ export const historicoQuery = queryOptions({
     const { data, error } = await supabase.from("transactions")
       .select("id, type, points, created_at").eq("customer_id", id)
       .order("created_at", { ascending: false }).limit(15);
+    if (error) throw error;
+    return data;
+  },
+});
+
+export const photosQuery = queryOptions({
+  queryKey: ["cliente", "fotos"],
+  queryFn: async () => {
+    const id = await uid();
+    const { data, error } = await supabase.from("photo_submissions")
+      .select("id, company_id, status, created_at").eq("customer_id", id)
+      .order("created_at", { ascending: false }).limit(30);
     if (error) throw error;
     return data;
   },

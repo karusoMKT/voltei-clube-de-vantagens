@@ -26,6 +26,8 @@ function Layout() {
       .channel(`empresa-${companyId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "redemptions", filter: `company_id=eq.${companyId}` },
         () => qc.invalidateQueries({ queryKey: ["empresa"] }))
+      .on("postgres_changes", { event: "*", schema: "public", table: "photo_submissions", filter: `company_id=eq.${companyId}` },
+        () => qc.invalidateQueries({ queryKey: ["empresa"] }))
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [companyId, qc]);

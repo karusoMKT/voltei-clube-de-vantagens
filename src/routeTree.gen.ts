@@ -16,6 +16,7 @@ import { Route as EmpresaRouteImport } from './routes/empresa'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as CSlugRouteImport } from './routes/c.$slug'
 import { Route as ClienteIndexRouteImport } from './routes/cliente.index'
+import { Route as ClienteFotoRouteImport } from './routes/cliente.foto'
 import { Route as ClientePerfilRouteImport } from './routes/cliente.perfil'
 import { Route as ClientePremiosRouteImport } from './routes/cliente.premios'
 import { Route as ClienteQrRouteImport } from './routes/cliente.qr'
@@ -57,6 +58,11 @@ const CSlugRoute = CSlugRouteImport.update({
 const ClienteIndexRoute = ClienteIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => ClienteRoute,
+} as any)
+const ClienteFotoRoute = ClienteFotoRouteImport.update({
+  id: '/foto',
+  path: '/foto',
   getParentRoute: () => ClienteRoute,
 } as any)
 const ClientePerfilRoute = ClientePerfilRouteImport.update({
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/empresa': typeof EmpresaRouteWithChildren
   '/entrar': typeof EntrarRoute
   '/c/$slug': typeof CSlugRoute
+  '/cliente/foto': typeof ClienteFotoRoute
   '/cliente/perfil': typeof ClientePerfilRoute
   '/cliente/premios': typeof ClientePremiosRoute
   '/cliente/qr': typeof ClienteQrRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/entrar': typeof EntrarRoute
   '/c/$slug': typeof CSlugRoute
+  '/cliente/foto': typeof ClienteFotoRoute
   '/cliente/perfil': typeof ClientePerfilRoute
   '/cliente/premios': typeof ClientePremiosRoute
   '/cliente/qr': typeof ClienteQrRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/empresa': typeof EmpresaRouteWithChildren
   '/entrar': typeof EntrarRoute
   '/c/$slug': typeof CSlugRoute
+  '/cliente/foto': typeof ClienteFotoRoute
   '/cliente/perfil': typeof ClientePerfilRoute
   '/cliente/premios': typeof ClientePremiosRoute
   '/cliente/qr': typeof ClienteQrRoute
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/empresa'
     | '/entrar'
     | '/c/$slug'
+    | '/cliente/foto'
     | '/cliente/perfil'
     | '/cliente/premios'
     | '/cliente/qr'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/entrar'
     | '/c/$slug'
+    | '/cliente/foto'
     | '/cliente/perfil'
     | '/cliente/premios'
     | '/cliente/qr'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/empresa'
     | '/entrar'
     | '/c/$slug'
+    | '/cliente/foto'
     | '/cliente/perfil'
     | '/cliente/premios'
     | '/cliente/qr'
@@ -251,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClienteIndexRouteImport
       parentRoute: typeof ClienteRoute
     }
+    '/cliente/foto': {
+      id: '/cliente/foto'
+      path: '/foto'
+      fullPath: '/cliente/foto'
+      preLoaderRoute: typeof ClienteFotoRouteImport
+      parentRoute: typeof ClienteRoute
+    }
     '/cliente/perfil': {
       id: '/cliente/perfil'
       path: '/perfil'
@@ -304,6 +323,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface ClienteRouteChildren {
+  ClienteFotoRoute: typeof ClienteFotoRoute
   ClientePerfilRoute: typeof ClientePerfilRoute
   ClientePremiosRoute: typeof ClientePremiosRoute
   ClienteQrRoute: typeof ClienteQrRoute
@@ -311,6 +331,7 @@ interface ClienteRouteChildren {
 }
 
 const ClienteRouteChildren: ClienteRouteChildren = {
+  ClienteFotoRoute: ClienteFotoRoute,
   ClientePerfilRoute: ClientePerfilRoute,
   ClientePremiosRoute: ClientePremiosRoute,
   ClienteQrRoute: ClienteQrRoute,

@@ -1,7 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ImagePlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Empty, Loading } from "@/components/Empty";
-import { clienteQuery, firstName, historicoQuery, proximoPremio, tipoLabel } from "@/lib/cliente-data";
+import { clienteQuery, firstName, historicoQuery, photosQuery, proximoPremio, tipoLabel } from "@/lib/cliente-data";
 
 export const Route = createFileRoute("/cliente/")({
   head: () => ({
@@ -22,6 +24,7 @@ const fmtData = (d: string) => new Date(d).toLocaleDateString("pt-BR", { day: "2
 function Inicio() {
   const { data, isPending } = useQuery(clienteQuery);
   const { data: historico } = useQuery(historicoQuery);
+  const { data: photos } = useQuery(photosQuery);
   if (isPending || !data) return <Loading />;
   const m = data.membership;
   const balance = m?.balance ?? 0;
@@ -49,8 +52,11 @@ function Inicio() {
         <Empty>Você ainda não está no clube de nenhuma loja. Peça o link no balcão.</Empty>
       )}
 
+      {m && <Button asChild variant="hero" size="xl"><Link to="/cliente/foto"><ImagePlus />Enviar foto (+{m.photoPoints} pontos)</Link></Button>}
+
       <section>
         <h2 className="mb-3 text-lg font-extrabold text-foreground">Histórico recente</h2>
+        {photos?.filter((p) => p.status === "pendente").map((p) => <p key={p.id} className="mb-3 rounded-2xl bg-secondary px-4 py-3 text-sm font-bold">Foto enviada, aguardando aprovação.<span className="mt-1 block font-normal text-muted-foreground">{fmtData(p.created_at)}</span></p>)}
         {historico && historico.length > 0 ? (
           <ul className="divide-y divide-border overflow-hidden rounded-3xl border border-border bg-card">
             {historico.map((t) => (

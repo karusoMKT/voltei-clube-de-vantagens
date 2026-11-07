@@ -31,3 +31,5 @@ use the editor.
 
 - Store authorization roles and company assignments only in protected `public.user_roles`; read them for navigation and enforce access inside database functions and RLS, never in editable profiles.
 - Keep repeatable access-control tests alongside existing tests; opt-in live checks use environment-injected test tokens and never store credentials in source.
+- Photo files go through authenticated server validation before privileged storage upload; database RPCs enforce review limits atomically, and reads use user-scoped private storage access.
+- Photo approval days use America/Sao_Paulo so daily limits follow the Brazilian store calendar.
