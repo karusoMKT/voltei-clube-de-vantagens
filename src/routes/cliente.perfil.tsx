@@ -4,6 +4,8 @@ import { PageTitle } from "@/components/AppShell";
 export const Route = createFileRoute("/cliente/perfil")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Perfil · Voltei" },
       { name: "description", content: "Perfil no Voltei." },
       { property: "og:title", content: "Perfil · Voltei" },

@@ -6,6 +6,8 @@ import { clienteQuery, firstName, historicoQuery, proximoPremio, tipoLabel } fro
 export const Route = createFileRoute("/cliente/")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Início · Voltei" },
       { name: "description", content: "Seus pontos e prêmios no Voltei." },
       { property: "og:title", content: "Início · Voltei" },

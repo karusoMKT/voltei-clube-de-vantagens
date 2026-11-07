@@ -4,6 +4,8 @@ import { EntrarForm } from "@/components/EntrarForm";
 export const Route = createFileRoute("/entrar")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Entrar · Voltei" },
       { name: "description", content: "Entre no clube e ganhe a cada volta." },
       { property: "og:title", content: "Entrar · Voltei" },

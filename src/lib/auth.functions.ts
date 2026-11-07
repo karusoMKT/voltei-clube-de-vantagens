@@ -39,7 +39,7 @@ export const criarConta = createServerFn({ method: "POST" })
 
     const { error: profileError } = await supabaseAdmin
       .from("profiles")
-      .upsert({ id: userId, full_name: data.fullName, phone: data.phone, instagram: data.instagram, role: "cliente" });
+      .update({ full_name: data.fullName, phone: data.phone, instagram: data.instagram }).eq("id", userId);
     const { error: memberError } = companyId
       ? await supabaseAdmin.from("memberships").insert({ customer_id: userId, company_id: companyId })
       : { error: null };

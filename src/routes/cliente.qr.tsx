@@ -7,6 +7,8 @@ import { clienteQuery, shortCode } from "@/lib/cliente-data";
 export const Route = createFileRoute("/cliente/qr")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Meu QR · Voltei" },
       { name: "description", content: "Mostre no caixa antes de pagar." },
       { property: "og:title", content: "Meu QR · Voltei" },

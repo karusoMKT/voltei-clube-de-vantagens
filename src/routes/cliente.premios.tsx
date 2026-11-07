@@ -11,6 +11,8 @@ import { clienteQuery, resgatesQuery } from "@/lib/cliente-data";
 export const Route = createFileRoute("/cliente/premios")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Prêmios · Voltei" },
       { name: "description", content: "Troque seus pontos por prêmios." },
       { property: "og:title", content: "Prêmios · Voltei" },

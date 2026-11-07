@@ -8,6 +8,8 @@ import { Empty, Loading } from "@/components/Empty";
 export const Route = createFileRoute("/empresa/aprovar")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Aprovar · Voltei" },
       { name: "description", content: "Entregue os prêmios resgatados." },
       { property: "og:title", content: "Aprovar · Voltei" },

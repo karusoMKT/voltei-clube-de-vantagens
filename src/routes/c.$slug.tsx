@@ -12,6 +12,8 @@ export const Route = createFileRoute("/c/$slug")({
     const title = loaderData ? `${loaderData.name} no Voltei` : "Loja não encontrada · Voltei";
     return {
       meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
         { title },
         { name: "description", content: "Entre no clube e ganhe a cada volta." },
         { property: "og:title", content: title },
