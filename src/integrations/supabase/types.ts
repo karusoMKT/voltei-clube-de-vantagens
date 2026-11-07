@@ -137,41 +137,27 @@ export type Database = {
       }
       profiles: {
         Row: {
-          company_id: string | null
           full_name: string | null
           id: string
           instagram: string | null
           phone: string | null
           qr_token: string
-          role: Database["public"]["Enums"]["user_role"]
         }
         Insert: {
-          company_id?: string | null
           full_name?: string | null
           id: string
           instagram?: string | null
           phone?: string | null
           qr_token?: string
-          role?: Database["public"]["Enums"]["user_role"]
         }
         Update: {
-          company_id?: string | null
           full_name?: string | null
           id?: string
           instagram?: string | null
           phone?: string | null
           qr_token?: string
-          role?: Database["public"]["Enums"]["user_role"]
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       redemptions: {
         Row: {
@@ -315,6 +301,38 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -341,6 +359,7 @@ export type Database = {
       }
       entregar_resgate: { Args: { _redemption_id: string }; Returns: undefined }
       is_admin: { Args: never; Returns: boolean }
+      is_customer: { Args: never; Returns: boolean }
       is_owner_of: { Args: { _company: string }; Returns: boolean }
       is_staff_of: { Args: { _company: string }; Returns: boolean }
       lancar_compra: {
