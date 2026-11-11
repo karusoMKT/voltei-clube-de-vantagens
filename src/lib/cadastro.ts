@@ -44,3 +44,9 @@ export const signupSchema = z.object({
 export const loginSchema = z.object({ phone, pin });
 
 export type SignupInput = z.input<typeof signupSchema>;
+
+/** Link wa.me com a mensagem de acesso para o dono recém-criado. */
+export function accessWhatsappLink(phone: string, name: string, company: string, pin: string, origin: string) {
+  const msg = `Olá, ${name}! Seu acesso ao Voltei da ${company} está pronto.\nEntre em ${origin}/entrar com seu WhatsApp e o PIN provisório ${pin}. Depois troque o PIN no seu perfil.`;
+  return `https://wa.me/55${onlyDigits(phone)}?text=${encodeURIComponent(msg)}`;
+}

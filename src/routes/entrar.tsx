@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { EntrarForm } from "@/components/EntrarForm";
 
 export const Route = createFileRoute("/entrar")({
-  validateSearch: (s: Record<string, unknown>): { equipe?: boolean } => (s["equipe"] === true || s["equipe"] === "true" ? { equipe: true } : {}),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -17,6 +16,5 @@ export const Route = createFileRoute("/entrar")({
 });
 
 function Page() {
-  const { equipe } = Route.useSearch();
-  return <EntrarForm equipe={!!equipe} />;
+  return <EntrarForm />;
 }

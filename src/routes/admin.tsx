@@ -3,7 +3,7 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, UserPlus, LogOut } from "lucide-react";
+import { Plus, UserPlus, LogOut, MessageCircle } from "lucide-react";
 import { PageTitle } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Loading, Empty } from "@/components/Empty";
 import { supabase } from "@/integrations/supabase/client";
 import { getSessionInfo, homeFor } from "@/lib/session";
-import { maskPhone } from "@/lib/cadastro";
+import { maskPhone, accessWhatsappLink } from "@/lib/cadastro";
 import { PLANS, type PlanId, planLabel, mrr, brl, companySchema, ownerSchema } from "@/lib/plans";
 import { listCompanies, createCompany, createOwner } from "@/lib/admin.functions";
 
@@ -97,28 +97,43 @@ function Field({ label, error, children }: { label: string; error?: string | und
 function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   const qc = useQueryClient();
   const save = useServerFn(createCompany);
-  const [form, setForm] = useState({ name: "", slug: "", plan: "basic" as PlanId, monthlyFee: String(PLANS.basic.fee) });
+  const saveOwner = useServerFn(createOwner);
+  const blank = { name: "", slug: "", plan: "basic" as PlanId, monthlyFee: String(PLANS.basic.fee), fullName: "", phone: "", pin: "" };
+  const [form, setForm] = useState(blank);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [link, setLink] = useState<string | null>(null);
   const m = useMutation({
-    mutationFn: (input: unknown) => save({ data: input }),
+    mutationFn: async (input: { company: unknown; owner: { fullName: string; phone: string; pin: string } }) => {
+      const c = await save({ data: input.company });
+      if (!c.ok || !c.id) return { ok: false, message: c.message };
+      const o = await saveOwner({ data: { ...input.owner, companyId: c.id } });
+      return o.ok ? { ok: true, message: "Loja e acesso do dono criados!" } : { ok: false, message: `Loja criada, mas o acesso do dono falhou: ${o.message}` };
+    },
     onSuccess: (r) => {
+      qc.invalidateQueries({ queryKey: ["admin"] });
       if (!r.ok) { toast.error(r.message); return; }
       toast.success(r.message);
-      qc.invalidateQueries({ queryKey: ["admin"] });
-      setForm({ name: "", slug: "", plan: "basic", monthlyFee: String(PLANS.basic.fee) });
-      onOpenChange(false);
+      setLink(accessWhatsappLink(form.phone, form.fullName, form.name, form.pin, window.location.origin));
     },
     onError: () => toast.error("Não conseguimos criar a empresa."),
   });
+  function close(o: boolean) { if (!o) { setForm(blank); setLink(null); setErrors({}); } onOpenChange(o); }
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    const r = companySchema.safeParse({ ...form, monthlyFee: form.monthlyFee.replace(",", ".") });
-    if (!r.success) { setErrors(Object.fromEntries(r.error.issues.map((i) => [String(i.path[0]), i.message]))); return; }
-    setErrors({}); m.mutate(r.data);
+    const c = companySchema.safeParse({ name: form.name, slug: form.slug, plan: form.plan, monthlyFee: form.monthlyFee.replace(",", ".") });
+    const o = ownerSchema.safeParse({ fullName: form.fullName, phone: form.phone, pin: form.pin, companyId: "00000000-0000-4000-8000-000000000000" });
+    const issues = [...(c.success ? [] : c.error.issues), ...(o.success ? [] : o.error.issues)];
+    if (!c.success || issues.length) { setErrors(Object.fromEntries(issues.map((i) => [String(i.path[0]), i.message]))); return; }
+    setErrors({}); m.mutate({ company: c.data, owner: { fullName: form.fullName, phone: form.phone, pin: form.pin } });
   }
-  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="rounded-3xl"><DialogHeader><DialogTitle>Nova empresa</DialogTitle></DialogHeader>
+  return <Dialog open={open} onOpenChange={close}><DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl"><DialogHeader><DialogTitle>Nova empresa</DialogTitle></DialogHeader>
+    {link ? <div className="space-y-4">
+      <p className="text-base">Tudo pronto! Envie o acesso para o dono da <b>{form.name}</b>.</p>
+      <Button asChild size="xl" className="w-full rounded-2xl"><a href={link} target="_blank" rel="noreferrer"><MessageCircle />Enviar Acesso via WhatsApp</a></Button>
+      <Button variant="ghost" size="xl" className="w-full rounded-2xl" onClick={() => close(false)}>Fechar</Button>
+    </div> :
     <form onSubmit={submit} className="space-y-4">
-      <Field label="Nome" error={errors["name"]}><Input className="h-12 rounded-2xl" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
+      <Field label="Nome da loja" error={errors["name"]}><Input className="h-12 rounded-2xl" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
       <Field label="Endereço (slug)" error={errors["slug"]}><Input className="h-12 rounded-2xl" placeholder="minha-loja" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase() })} /></Field>
       <Field label="Plano">
         <div className="grid gap-2">{(Object.keys(PLANS) as PlanId[]).map((p) => (
@@ -128,8 +143,12 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
           </button>))}</div>
       </Field>
       <Field label="Mensalidade (R$)" error={errors["monthlyFee"]}><Input className="h-12 rounded-2xl" inputMode="decimal" value={form.monthlyFee} onChange={(e) => setForm({ ...form, monthlyFee: e.target.value })} /></Field>
-      <Button type="submit" size="xl" className="w-full rounded-2xl" disabled={m.isPending}>{m.isPending ? "Criando..." : "Criar empresa"}</Button>
-    </form></DialogContent></Dialog>;
+      <p className="pt-2 font-extrabold">Dono da loja</p>
+      <Field label="Nome do dono" error={errors["fullName"]}><Input className="h-12 rounded-2xl" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} /></Field>
+      <Field label="WhatsApp" error={errors["phone"]}><Input className="h-12 rounded-2xl" inputMode="tel" placeholder="(73) 9 0000-0000" value={form.phone} onChange={(e) => setForm({ ...form, phone: maskPhone(e.target.value) })} /></Field>
+      <Field label="PIN provisório (6 números)" error={errors["pin"]}><Input className="h-12 rounded-2xl" inputMode="numeric" maxLength={6} value={form.pin} onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "").slice(0, 6) })} /></Field>
+      <Button type="submit" size="xl" className="w-full rounded-2xl" disabled={m.isPending}>{m.isPending ? "Criando..." : "Criar loja e acesso"}</Button>
+    </form>}</DialogContent></Dialog>;
 }
 
 function CriarDono({ company, onClose }: { company: Company | null; onClose: () => void }) {

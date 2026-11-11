@@ -3,6 +3,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { toast } from "sonner";
 import { criarConta } from "@/lib/auth.functions";
 import { getSessionInfo, homeFor } from "@/lib/session";
 import { loginSchema, maskPhone, phoneToEmail, signupSchema } from "@/lib/cadastro";
@@ -32,9 +34,8 @@ function firstErrors(issues: { path: (string | number)[]; message: string }[]): 
   return out;
 }
 
-export function EntrarForm({ slug, companyName, equipe = false }: { slug?: string | undefined; companyName?: string | undefined; equipe?: boolean }) {
-  const [mode, setMode] = useState<"cadastro" | "entrada">(equipe ? "entrada" : "cadastro");
-  const [logadoCliente, setLogadoCliente] = useState(false);
+export function EntrarForm({ slug, companyName }: { slug?: string | undefined; companyName?: string | undefined }) {
+  const [mode, setMode] = useState<"cadastro" | "entrada">(slug ? "cadastro" : "entrada");
   const [form, setForm] = useState({ fullName: "", phone: "", instagram: "", pin: "" });
   const [errors, setErrors] = useState<Errors>({});
   const [loading, setLoading] = useState(false);
@@ -43,23 +44,12 @@ export function EntrarForm({ slug, companyName, equipe = false }: { slug?: strin
   const signup = useServerFn(criarConta);
 
   useEffect(() => {
-    setMode(equipe ? "entrada" : "cadastro");
-    if (!equipe) return setLogadoCliente(false);
-    getSessionInfo().then((info) => {
-      if (!info) return;
-      if (info.role === "cliente") setLogadoCliente(true);
-      else navigate({ to: homeFor(info.role), replace: true });
-    });
-  }, [equipe, navigate]);
+    getSessionInfo().then((info) => { if (info) navigate({ to: homeFor(info.role), replace: true }); });
+  }, [navigate]);
 
   async function goHome() {
     const info = await getSessionInfo();
     navigate({ to: info ? homeFor(info.role) : "/cliente", replace: true });
-  }
-
-  async function sairEEntrar() {
-    await supabase.auth.signOut();
-    setLogadoCliente(false);
   }
 
   const set = (k: keyof typeof form, v: string) => {
@@ -100,7 +90,8 @@ export function EntrarForm({ slug, companyName, equipe = false }: { slug?: strin
       const err = await signIn(form.phone, form.pin);
       if (err) {
         setLoading(false);
-        return setErrors({ form: "Não encontramos esse WhatsApp com esse PIN. Confira e tente de novo." });
+        toast.error("WhatsApp ou PIN incorretos. Confira e tente de novo.");
+        return;
       }
       await goHome();
       setLoading(false);
@@ -117,7 +108,7 @@ export function EntrarForm({ slug, companyName, equipe = false }: { slug?: strin
       )}
 
       <h1 className="mt-6 text-3xl font-extrabold leading-tight text-foreground">
-        {equipe ? "Entrada da equipe" : mode === "cadastro" ? "Entre no clube e ganhe a cada volta." : "Que bom te ver de novo!"}
+        {mode === "cadastro" ? "Entre no clube e ganhe a cada volta." : "Que bom te ver de novo!"}
       </h1>
       <p className="mt-2 text-base text-muted-foreground">
         {mode === "cadastro"
@@ -125,14 +116,7 @@ export function EntrarForm({ slug, companyName, equipe = false }: { slug?: strin
           : "Entre com seu WhatsApp e PIN."}
       </p>
 
-      {logadoCliente && (
-        <div className="mt-8 flex flex-col gap-3 rounded-2xl bg-cream px-4 py-4">
-          <p className="text-base font-semibold text-foreground">Você está logado como cliente. Quer sair e entrar como empresa?</p>
-          <Button type="button" variant="hero" size="xl" onClick={sairEEntrar}>Sair e entrar</Button>
-        </div>
-      )}
-
-      {!logadoCliente && <form onSubmit={onSubmit} noValidate className="mt-8 flex flex-col gap-5">
+      <form onSubmit={onSubmit} noValidate className="mt-8 flex flex-col gap-5">
         {mode === "cadastro" && (
           <Field label="Seu nome" error={errors.fullName}>
             <input className={inputCls} autoComplete="name" value={form.fullName} aria-invalid={!!errors.fullName}
@@ -152,10 +136,15 @@ export function EntrarForm({ slug, companyName, equipe = false }: { slug?: strin
           </Field>
         )}
         <Field label={mode === "cadastro" ? "Crie um PIN de 6 números" : "Seu PIN"} error={errors.pin}>
-          <input className={`${inputCls} tracking-[0.5em]`} type="password" inputMode="numeric" maxLength={6}
-            autoComplete={mode === "cadastro" ? "new-password" : "current-password"} value={form.pin}
-            aria-invalid={!!errors.pin} onChange={(e) => set("pin", e.target.value.replace(/\D/g, "").slice(0, 6))}
-            placeholder="••••••" />
+          <InputOTP maxLength={6} inputMode="numeric" pattern="^[0-9]*$" value={form.pin}
+            autoComplete={mode === "cadastro" ? "new-password" : "current-password"} aria-invalid={!!errors.pin}
+            onChange={(v) => set("pin", v.replace(/\D/g, ""))}>
+            <InputOTPGroup className="w-full justify-between gap-2">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <InputOTPSlot key={i} index={i} className="h-14 w-12 rounded-2xl border border-border bg-card text-xl first:rounded-2xl first:border-l last:rounded-2xl" />
+              ))}
+            </InputOTPGroup>
+          </InputOTP>
         </Field>
 
         {errors.form && (
@@ -165,7 +154,7 @@ export function EntrarForm({ slug, companyName, equipe = false }: { slug?: strin
         <Button type="submit" variant="hero" size="xl" disabled={loading}>
           {loading ? "Só um instante…" : mode === "cadastro" ? "Criar minha conta" : "Entrar"}
         </Button>
-      </form>}
+      </form>
 
       {mode === "entrada" && (
         <div className="mt-4 text-center">
@@ -180,13 +169,13 @@ export function EntrarForm({ slug, companyName, equipe = false }: { slug?: strin
         </div>
       )}
 
-      {!equipe && <div className="mt-auto pt-8 text-center text-sm text-muted-foreground">
-        {mode === "cadastro" ? "Já tem conta?" : "Ainda não tem conta?"}{" "}
+      <div className="mt-auto pt-8 text-center text-sm text-muted-foreground">
+        {mode === "cadastro" ? "Já tem conta?" : "Novo por aqui?"}{" "}
         <button type="button" className="min-h-12 font-bold text-primary"
           onClick={() => { setMode(mode === "cadastro" ? "entrada" : "cadastro"); setErrors({}); setForgot(false); }}>
-          {mode === "cadastro" ? "Entrar" : "Criar minha conta"}
+          {mode === "cadastro" ? "Entrar" : "Criar conta de cliente"}
         </button>
-      </div>}
+      </div>
     </div>
   );
 }

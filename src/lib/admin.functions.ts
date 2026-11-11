@@ -24,8 +24,8 @@ export const createCompany = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => companySchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.rpc("admin_criar_empresa" as never, { _name: data.name, _slug: data.slug, _plan: data.plan, _monthly_fee: data.monthlyFee } as never);
-    return error ? { ok: false, message: error.message } : { ok: true, message: "Empresa criada!" };
+    const { data: id, error } = await context.supabase.rpc("admin_criar_empresa" as never, { _name: data.name, _slug: data.slug, _plan: data.plan, _monthly_fee: data.monthlyFee } as never);
+    return error ? { ok: false as const, message: error.message, id: null } : { ok: true as const, message: "Empresa criada!", id: id as unknown as string };
   });
 
 export const createOwner = createServerFn({ method: "POST" })
