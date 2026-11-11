@@ -1,17 +1,17 @@
 import { useEffect } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Store, CheckCircle2, Gift, BarChart3 } from "lucide-react";
+import { Store, CheckCircle2, Gift, BarChart3, Users } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
-import { getSessionInfo, homeFor, isStaff } from "@/lib/session";
+import { getSessionInfo, homeFor } from "@/lib/session";
 
 export const Route = createFileRoute("/empresa")({
   ssr: false,
   beforeLoad: async () => {
     const info = await getSessionInfo();
     if (!info) throw redirect({ to: "/entrar" });
-    if (!isStaff(info.role) || !info.companyId) throw redirect({ to: homeFor(info.role) === "/empresa" ? "/cliente" : homeFor(info.role) });
+    if (info.role !== "dono" || !info.companyId) throw redirect({ to: homeFor(info.role) === "/empresa" ? "/cliente" : homeFor(info.role) });
     const { data: c } = await supabase.from("companies").select("plan").eq("id", info.companyId).maybeSingle();
     return { userId: info.userId, companyId: info.companyId, plan: c?.plan ?? "basic" };
   },
@@ -41,6 +41,7 @@ function Layout() {
         { to: "/empresa/aprovar", label: "Aprovar", icon: CheckCircle2 },
         { to: "/empresa/premios", label: "Prêmios", icon: Gift },
         { to: "/empresa/resumo", label: "Resumo", icon: BarChart3 },
+        { to: "/empresa/equipe", label: "Equipe", icon: Users },
       ]}
     />
   );

@@ -11,10 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CaixaRouteImport } from './routes/caixa'
 import { Route as ClienteRouteImport } from './routes/cliente'
 import { Route as EmpresaRouteImport } from './routes/empresa'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as CSlugRouteImport } from './routes/c.$slug'
+import { Route as CaixaIndexRouteImport } from './routes/caixa.index'
+import { Route as CaixaResgatesRouteImport } from './routes/caixa.resgates'
 import { Route as ClienteIndexRouteImport } from './routes/cliente.index'
 import { Route as ClienteFotoRouteImport } from './routes/cliente.foto'
 import { Route as ClientePerfilRouteImport } from './routes/cliente.perfil'
@@ -22,6 +25,7 @@ import { Route as ClientePremiosRouteImport } from './routes/cliente.premios'
 import { Route as ClienteQrRouteImport } from './routes/cliente.qr'
 import { Route as EmpresaIndexRouteImport } from './routes/empresa.index'
 import { Route as EmpresaAprovarRouteImport } from './routes/empresa.aprovar'
+import { Route as EmpresaEquipeRouteImport } from './routes/empresa.equipe'
 import { Route as EmpresaPremiosRouteImport } from './routes/empresa.premios'
 import { Route as EmpresaResumoRouteImport } from './routes/empresa.resumo'
 
@@ -33,6 +37,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaixaRoute = CaixaRouteImport.update({
+  id: '/caixa',
+  path: '/caixa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClienteRoute = ClienteRouteImport.update({
@@ -54,6 +63,16 @@ const CSlugRoute = CSlugRouteImport.update({
   id: '/c/$slug',
   path: '/c/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CaixaIndexRoute = CaixaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CaixaRoute,
+} as any)
+const CaixaResgatesRoute = CaixaResgatesRouteImport.update({
+  id: '/resgates',
+  path: '/resgates',
+  getParentRoute: () => CaixaRoute,
 } as any)
 const ClienteIndexRoute = ClienteIndexRouteImport.update({
   id: '/',
@@ -90,6 +109,11 @@ const EmpresaAprovarRoute = EmpresaAprovarRouteImport.update({
   path: '/aprovar',
   getParentRoute: () => EmpresaRoute,
 } as any)
+const EmpresaEquipeRoute = EmpresaEquipeRouteImport.update({
+  id: '/equipe',
+  path: '/equipe',
+  getParentRoute: () => EmpresaRoute,
+} as any)
 const EmpresaPremiosRoute = EmpresaPremiosRouteImport.update({
   id: '/premios',
   path: '/premios',
@@ -104,17 +128,21 @@ const EmpresaResumoRoute = EmpresaResumoRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/caixa': typeof CaixaRouteWithChildren
   '/cliente': typeof ClienteRouteWithChildren
   '/empresa': typeof EmpresaRouteWithChildren
   '/entrar': typeof EntrarRoute
   '/c/$slug': typeof CSlugRoute
+  '/caixa/resgates': typeof CaixaResgatesRoute
   '/cliente/foto': typeof ClienteFotoRoute
   '/cliente/perfil': typeof ClientePerfilRoute
   '/cliente/premios': typeof ClientePremiosRoute
   '/cliente/qr': typeof ClienteQrRoute
   '/empresa/aprovar': typeof EmpresaAprovarRoute
+  '/empresa/equipe': typeof EmpresaEquipeRoute
   '/empresa/premios': typeof EmpresaPremiosRoute
   '/empresa/resumo': typeof EmpresaResumoRoute
+  '/caixa/': typeof CaixaIndexRoute
   '/cliente/': typeof ClienteIndexRoute
   '/empresa/': typeof EmpresaIndexRoute
 }
@@ -123,13 +151,16 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/entrar': typeof EntrarRoute
   '/c/$slug': typeof CSlugRoute
+  '/caixa/resgates': typeof CaixaResgatesRoute
   '/cliente/foto': typeof ClienteFotoRoute
   '/cliente/perfil': typeof ClientePerfilRoute
   '/cliente/premios': typeof ClientePremiosRoute
   '/cliente/qr': typeof ClienteQrRoute
   '/empresa/aprovar': typeof EmpresaAprovarRoute
+  '/empresa/equipe': typeof EmpresaEquipeRoute
   '/empresa/premios': typeof EmpresaPremiosRoute
   '/empresa/resumo': typeof EmpresaResumoRoute
+  '/caixa': typeof CaixaIndexRoute
   '/cliente': typeof ClienteIndexRoute
   '/empresa': typeof EmpresaIndexRoute
 }
@@ -137,17 +168,21 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/caixa': typeof CaixaRouteWithChildren
   '/cliente': typeof ClienteRouteWithChildren
   '/empresa': typeof EmpresaRouteWithChildren
   '/entrar': typeof EntrarRoute
   '/c/$slug': typeof CSlugRoute
+  '/caixa/resgates': typeof CaixaResgatesRoute
   '/cliente/foto': typeof ClienteFotoRoute
   '/cliente/perfil': typeof ClientePerfilRoute
   '/cliente/premios': typeof ClientePremiosRoute
   '/cliente/qr': typeof ClienteQrRoute
   '/empresa/aprovar': typeof EmpresaAprovarRoute
+  '/empresa/equipe': typeof EmpresaEquipeRoute
   '/empresa/premios': typeof EmpresaPremiosRoute
   '/empresa/resumo': typeof EmpresaResumoRoute
+  '/caixa/': typeof CaixaIndexRoute
   '/cliente/': typeof ClienteIndexRoute
   '/empresa/': typeof EmpresaIndexRoute
 }
@@ -156,17 +191,21 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/caixa'
     | '/cliente'
     | '/empresa'
     | '/entrar'
     | '/c/$slug'
+    | '/caixa/resgates'
     | '/cliente/foto'
     | '/cliente/perfil'
     | '/cliente/premios'
     | '/cliente/qr'
     | '/empresa/aprovar'
+    | '/empresa/equipe'
     | '/empresa/premios'
     | '/empresa/resumo'
+    | '/caixa/'
     | '/cliente/'
     | '/empresa/'
   fileRoutesByTo: FileRoutesByTo
@@ -175,30 +214,37 @@ export interface FileRouteTypes {
     | '/admin'
     | '/entrar'
     | '/c/$slug'
+    | '/caixa/resgates'
     | '/cliente/foto'
     | '/cliente/perfil'
     | '/cliente/premios'
     | '/cliente/qr'
     | '/empresa/aprovar'
+    | '/empresa/equipe'
     | '/empresa/premios'
     | '/empresa/resumo'
+    | '/caixa'
     | '/cliente'
     | '/empresa'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/caixa'
     | '/cliente'
     | '/empresa'
     | '/entrar'
     | '/c/$slug'
+    | '/caixa/resgates'
     | '/cliente/foto'
     | '/cliente/perfil'
     | '/cliente/premios'
     | '/cliente/qr'
     | '/empresa/aprovar'
+    | '/empresa/equipe'
     | '/empresa/premios'
     | '/empresa/resumo'
+    | '/caixa/'
     | '/cliente/'
     | '/empresa/'
   fileRoutesById: FileRoutesById
@@ -206,6 +252,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  CaixaRoute: typeof CaixaRouteWithChildren
   ClienteRoute: typeof ClienteRouteWithChildren
   EmpresaRoute: typeof EmpresaRouteWithChildren
   EntrarRoute: typeof EntrarRoute
@@ -226,6 +273,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/caixa': {
+      id: '/caixa'
+      path: '/caixa'
+      fullPath: '/caixa'
+      preLoaderRoute: typeof CaixaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cliente': {
@@ -255,6 +309,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/c/$slug'
       preLoaderRoute: typeof CSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/caixa/': {
+      id: '/caixa/'
+      path: '/'
+      fullPath: '/caixa/'
+      preLoaderRoute: typeof CaixaIndexRouteImport
+      parentRoute: typeof CaixaRoute
+    }
+    '/caixa/resgates': {
+      id: '/caixa/resgates'
+      path: '/resgates'
+      fullPath: '/caixa/resgates'
+      preLoaderRoute: typeof CaixaResgatesRouteImport
+      parentRoute: typeof CaixaRoute
     }
     '/cliente/': {
       id: '/cliente/'
@@ -305,6 +373,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresaAprovarRouteImport
       parentRoute: typeof EmpresaRoute
     }
+    '/empresa/equipe': {
+      id: '/empresa/equipe'
+      path: '/equipe'
+      fullPath: '/empresa/equipe'
+      preLoaderRoute: typeof EmpresaEquipeRouteImport
+      parentRoute: typeof EmpresaRoute
+    }
     '/empresa/premios': {
       id: '/empresa/premios'
       path: '/premios'
@@ -321,6 +396,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface CaixaRouteChildren {
+  CaixaResgatesRoute: typeof CaixaResgatesRoute
+  CaixaIndexRoute: typeof CaixaIndexRoute
+}
+
+const CaixaRouteChildren: CaixaRouteChildren = {
+  CaixaResgatesRoute: CaixaResgatesRoute,
+  CaixaIndexRoute: CaixaIndexRoute,
+}
+
+const CaixaRouteWithChildren = CaixaRoute._addFileChildren(CaixaRouteChildren)
 
 interface ClienteRouteChildren {
   ClienteFotoRoute: typeof ClienteFotoRoute
@@ -343,6 +430,7 @@ const ClienteRouteWithChildren =
 
 interface EmpresaRouteChildren {
   EmpresaAprovarRoute: typeof EmpresaAprovarRoute
+  EmpresaEquipeRoute: typeof EmpresaEquipeRoute
   EmpresaPremiosRoute: typeof EmpresaPremiosRoute
   EmpresaResumoRoute: typeof EmpresaResumoRoute
   EmpresaIndexRoute: typeof EmpresaIndexRoute
@@ -350,6 +438,7 @@ interface EmpresaRouteChildren {
 
 const EmpresaRouteChildren: EmpresaRouteChildren = {
   EmpresaAprovarRoute: EmpresaAprovarRoute,
+  EmpresaEquipeRoute: EmpresaEquipeRoute,
   EmpresaPremiosRoute: EmpresaPremiosRoute,
   EmpresaResumoRoute: EmpresaResumoRoute,
   EmpresaIndexRoute: EmpresaIndexRoute,
@@ -361,6 +450,7 @@ const EmpresaRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  CaixaRoute: CaixaRouteWithChildren,
   ClienteRoute: ClienteRouteWithChildren,
   EmpresaRoute: EmpresaRouteWithChildren,
   EntrarRoute: EntrarRoute,

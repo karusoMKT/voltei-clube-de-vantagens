@@ -33,3 +33,10 @@ describe("protected roles", () => {
     expect(isStaff("admin")).toBe(false);
   });
 });
+import { homeFor } from "@/lib/session";
+describe("home after sign-in", () => {
+  it("admin goes to /admin", () => expect(homeFor("admin")).toBe("/admin"));
+  it("owner goes to /empresa", () => expect(homeFor("dono")).toBe("/empresa"));
+  it("cashier goes to /caixa", () => expect(homeFor("funcionario")).toBe("/caixa"));
+  it("customer goes to /cliente", () => expect(homeFor("cliente")).toBe("/cliente"));
+});

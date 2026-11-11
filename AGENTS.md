@@ -35,3 +35,4 @@ use the editor.
 - Photo approval days use America/Sao_Paulo so daily limits follow the Brazilian store calendar.
 - Company reward and rate mutations use staff-authorized RPCs; monthly summaries aggregate in Postgres with RLS to avoid row-limit truncation.
 - Monthly summaries use America/Sao_Paulo; member count is all current members, positive point transactions and redemption creations count in the month, and never-purchasers become inactive after their membership is older than the inactivity window.
+- Role areas: admin→/admin, dono→/empresa (owner-only management), funcionario and dono→/caixa (checkout + reward delivery only); reward/rate/summary RPCs check is_owner_of or is_admin, so cashiers stay out even via API.

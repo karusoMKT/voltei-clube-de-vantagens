@@ -20,7 +20,7 @@ export function AppShell({ area, tabs }: { area: string; tabs: Tab[] }) {
       </header>
       <main className="flex-1 pb-28"><Outlet /></main>
       <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-md border-t border-border bg-card px-2 pb-[env(safe-area-inset-bottom)]">
-        <ul className="grid grid-cols-4">
+        <ul className="grid" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
           {tabs.map(({ to, label, icon: Icon, exact }) => (
             <li key={to}>
               <Link

@@ -34,3 +34,8 @@ export const ownerSchema = z.object({
 });
 
 export const brl = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+/** Atendente de caixa criado pelo dono. A loja vem do cargo do dono, nunca do formulário. */
+export const staffSchema = ownerSchema.omit({ companyId: true }).extend({
+  fullName: z.string().trim().min(2, "Digite o nome do atendente.").max(80),
+});

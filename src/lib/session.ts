@@ -13,5 +13,8 @@ export async function getSessionInfo(): Promise<SessionInfo> {
 export const isStaff = (role: string) => role === "funcionario" || role === "dono";
 
 /** Área inicial de cada papel depois da entrada. */
+export const isOwner = (role: string) => role === "dono";
+
+/** Área inicial de cada papel: admin → /admin, dono → /empresa, funcionário → /caixa, cliente → /cliente. */
 export const homeFor = (role: string) =>
-  role === "admin" ? "/admin" : isStaff(role) ? "/empresa" : "/cliente";
+  role === "admin" ? "/admin" : role === "dono" ? "/empresa" : role === "funcionario" ? "/caixa" : "/cliente";
