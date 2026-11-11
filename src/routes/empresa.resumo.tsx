@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Users, ShoppingBag, Sparkles, Gift, MessageCircle } from "lucide-react";
+import { PlanLock } from "@/components/PlanLock";
 import { Button } from "@/components/ui/button";
 import { Empty, Loading } from "@/components/Empty";
 import { getCompanySummary } from "@/lib/company-panels.functions";
@@ -37,6 +38,10 @@ function Resumo() {
   return <div className="space-y-6 px-5 pt-6">
     <div><h1 className="text-3xl font-extrabold">Resumo do mês</h1><p className="mt-1 capitalize text-muted-foreground">{month}</p></div>
     <div className="grid grid-cols-2 gap-3">{metrics.map(({ label, value, icon: Icon }) => <div key={label} className="min-h-36 rounded-3xl border border-border bg-card p-4"><Icon className="mb-2 h-5 w-5 text-primary" /><p className="break-all text-3xl font-extrabold text-primary">{value.toLocaleString("pt-BR")}</p><p className="mt-1 text-sm font-bold">{label}</p></div>)}</div>
+    {!data.premium ? <PlanLock title="Clientes sumidos e top clientes" plan="Premium" /> : <>
+    <section className="space-y-3"><h2 className="text-xl font-extrabold">Top clientes</h2>
+      {!data.top.length ? <Empty>Ainda sem clientes.</Empty> : <ol className="space-y-2">{data.top.map((c, i) => <li key={c.id} className="flex items-center justify-between rounded-2xl border border-border bg-card p-4"><span className="font-bold">{i + 1}. {c.name ?? "Cliente"}</span><span className="font-extrabold text-primary">{c.balance.toLocaleString("pt-BR")} pts</span></li>)}</ol>}
+    </section>
     <section className="space-y-3"><h2 className="text-xl font-extrabold">{data.inactive.length} {data.inactive.length === 1 ? "cliente sumiu" : "clientes sumiram"}</h2>
       <p className="text-sm text-muted-foreground">Sem comprar há mais de 30 dias.</p>
       {!data.inactive.length ? <Empty>Nenhum cliente sumido por aqui.</Empty> : <ul className="space-y-3">{data.inactive.map((customer) => {
@@ -46,6 +51,6 @@ function Resumo() {
           {link ? <Button asChild variant="secondary" size="xl" className="mt-3 rounded-2xl"><a href={link} target="_blank" rel="noopener noreferrer"><MessageCircle />Chamar no WhatsApp</a></Button> : <Button variant="secondary" size="xl" className="mt-3 rounded-2xl" disabled><MessageCircle />WhatsApp não informado</Button>}
         </li>;
       })}</ul>}
-    </section>
+    </section></>}
   </div>;
 }

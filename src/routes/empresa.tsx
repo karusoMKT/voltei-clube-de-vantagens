@@ -12,7 +12,8 @@ export const Route = createFileRoute("/empresa")({
     const info = await getSessionInfo();
     if (!info) throw redirect({ to: "/entrar" });
     if (!isStaff(info.role) || !info.companyId) throw redirect({ to: homeFor(info.role) === "/empresa" ? "/cliente" : homeFor(info.role) });
-    return { userId: info.userId, companyId: info.companyId };
+    const { data: c } = await supabase.from("companies").select("plan").eq("id", info.companyId).maybeSingle();
+    return { userId: info.userId, companyId: info.companyId, plan: c?.plan ?? "basic" };
   },
   component: Layout,
 });

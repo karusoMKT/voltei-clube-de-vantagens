@@ -43,6 +43,13 @@ export const getCompanySummary = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: summary, error } = await context.supabase.rpc("resumo_empresa", { _company_id: data.companyId });
     if (error) throw new Error(error.message);
-    const { data: company } = await context.supabase.from("companies").select("name").eq("id",data.companyId).single();
-    return { ...summarySchema.parse(summary), companyName: company?.name ?? "" };
+    const { data: company } = await context.supabase.from("companies").select("name,plan").eq("id",data.companyId).single();
+    const parsed = summarySchema.parse(summary);
+    const premium = company?.plan === "premium";
+    let top: { id: string; name: string | null; balance: number }[] = [];
+    if (premium) {
+      const { data: rows } = await context.supabase.from("memberships").select("customer_id,points_balance,profiles(full_name)").eq("company_id", data.companyId).order("points_balance", { ascending: false }).limit(5);
+      top = (rows ?? []).map((r) => ({ id: r.customer_id, name: r.profiles?.full_name ?? null, balance: r.points_balance }));
+    }
+    return { ...parsed, inactive: premium ? parsed.inactive : [], premium, top, companyName: company?.name ?? "" };
   });

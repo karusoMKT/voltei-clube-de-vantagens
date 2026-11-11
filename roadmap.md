@@ -12,4 +12,5 @@
 - [x] Proteger edição de regras e prêmios pela equipe da própria loja.
 - [x] Completar lista de prêmios, retorno e cadastro.
 - [x] Completar indicadores mensais e contatos dos clientes ausentes.
-- [x] Testar cálculos, isolamento e fluxos reais: 7 testes locais e 6 de acesso reais; regra, cadastro, ativação, resumo e mensagem de WhatsApp verificados.- [ ] Área /admin (empresas, mensalidade, nova empresa, acesso do dono) — aguarda aprovação do SQL
+- [x] Testar cálculos, isolamento e fluxos reais: 7 testes locais e 6 de acesso reais; regra, cadastro, ativação, resumo e mensagem de WhatsApp verificados.
+- [x] Área /admin com planos (Básico, Profissional, Premium), MRR, nova empresa e acesso do dono; bloqueio por plano no painel da empresa.

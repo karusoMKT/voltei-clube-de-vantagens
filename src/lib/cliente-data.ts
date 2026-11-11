@@ -18,7 +18,7 @@ export const clienteQuery = queryOptions({
       .from("profiles").select("id, full_name, qr_token, instagram").eq("id", id).single();
     if (error) throw error;
     const { data: m } = await supabase
-      .from("memberships").select("company_id, points_balance, companies(name, points_photo)")
+      .from("memberships").select("company_id, points_balance, companies(name, points_photo, plan)")
       .eq("customer_id", id).order("created_at").limit(1).maybeSingle();
     let rewards: Reward[] = [];
     if (m) {
@@ -28,7 +28,7 @@ export const clienteQuery = queryOptions({
     }
     return {
       profile,
-      membership: m ? { companyId: m.company_id, balance: m.points_balance, companyName: m.companies?.name ?? "", photoPoints: m.companies?.points_photo ?? 30 } : null,
+      membership: m ? { companyId: m.company_id, balance: m.points_balance, companyName: m.companies?.name ?? "", photoPoints: m.companies?.points_photo ?? 30, photoEnabled: m.companies?.plan === "premium" } : null,
       rewards,
     };
   },

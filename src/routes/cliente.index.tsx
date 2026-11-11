@@ -52,7 +52,7 @@ function Inicio() {
         <Empty>Você ainda não está no clube de nenhuma loja. Peça o link no balcão.</Empty>
       )}
 
-      {m && <Button asChild variant="hero" size="xl"><Link to="/cliente/foto"><ImagePlus />Enviar foto (+{m.photoPoints} pontos)</Link></Button>}
+      {m?.photoEnabled && <Button asChild variant="hero" size="xl"><Link to="/cliente/foto"><ImagePlus />Enviar foto (+{m.photoPoints} pontos)</Link></Button>}
 
       <section>
         <h2 className="mb-3 text-lg font-extrabold text-foreground">Histórico recente</h2>

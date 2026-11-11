@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Empty, Loading } from "@/components/Empty";
 import { PhotoReviews } from "@/components/PhotoReviews";
+import { PlanLock } from "@/components/PlanLock";
 
 export const Route = createFileRoute("/empresa/aprovar")({
   head: () => ({
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/empresa/aprovar")({
 });
 
 function Aprovar() {
-  const { companyId } = Route.useRouteContext();
+  const { companyId, plan } = Route.useRouteContext();
   const qc = useQueryClient();
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -53,7 +54,7 @@ function Aprovar() {
         <h1 className="text-3xl font-extrabold text-foreground">Aprovar</h1>
         <p className="mt-1 text-muted-foreground">Fotos e prêmios esperando você.</p>
       </div>
-      <PhotoReviews companyId={companyId} />
+      {plan === "premium" ? <PhotoReviews companyId={companyId} /> : <PlanLock title="Pontos por Stories do Instagram" plan="Premium" />}
       <h2 className="text-lg font-extrabold">Resgates esperando entrega</h2>
       {msg && <p role="status" className="rounded-2xl bg-secondary px-4 py-3 font-bold text-secondary-foreground">{msg}</p>}
       {data && data.length > 0 ? (

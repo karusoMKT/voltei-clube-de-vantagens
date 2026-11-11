@@ -1,3 +1,4 @@
+import { PlanLock } from "@/components/PlanLock";
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/empresa/premios")({
 });
 
 function EmpresaPremios() {
-  const { companyId } = Route.useRouteContext();
+  const { companyId, plan } = Route.useRouteContext();
   const qc = useQueryClient();
   const fetchRewards = useServerFn(getCompanyRewards);
   const saveRate = useServerFn(saveCompanyRate);
@@ -57,6 +58,7 @@ function EmpresaPremios() {
   const money = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   const displayRate = rate ?? String(data.company.points_per_real).replace(".", ",");
   return <div className="space-y-5 px-5 pt-6">
+    {plan === "basic" && <PlanLock title="Catálogo de prêmios e retorno financeiro" plan="Profissional" />}
     <h1 className="text-3xl font-extrabold">Seus prêmios</h1>
     <form className="border-y border-border py-4" onSubmit={(e) => {
       e.preventDefault(); const parsed = rateSchema.safeParse(Number(displayRate.replace(",", ".")));
