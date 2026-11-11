@@ -357,6 +357,15 @@ export type Database = {
         }
         Returns: number
       }
+      admin_criar_empresa: {
+        Args: {
+          _monthly_fee: number
+          _name: string
+          _plan: string
+          _slug: string
+        }
+        Returns: string
+      }
       aprovar_foto: { Args: { _submission_id: string }; Returns: number }
       ativar_premio: {
         Args: { _active: boolean; _reward_id: string }
@@ -370,6 +379,10 @@ export type Database = {
           instagram: string
           points_balance: number
         }[]
+      }
+      company_plan_allows: {
+        Args: { _company: string; _feature: string }
+        Returns: boolean
       }
       criar_premio: {
         Args: {
