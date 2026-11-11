@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageTitle } from "@/components/AppShell";
+import { TrocarPin } from "@/components/TrocarPin";
 
 export const Route = createFileRoute("/cliente/perfil")({
   head: () => ({
@@ -16,5 +17,10 @@ export const Route = createFileRoute("/cliente/perfil")({
 });
 
 function Perfil() {
-  return <PageTitle title="Perfil" />;
+  return (
+    <>
+      <PageTitle title="Perfil" />
+      <TrocarPin />
+    </>
+  );
 }

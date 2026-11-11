@@ -1,13 +1,13 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { PageTitle } from "@/components/AppShell";
-import { getSessionInfo, isStaff } from "@/lib/session";
+import { getSessionInfo, homeFor } from "@/lib/session";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
   beforeLoad: async () => {
     const info = await getSessionInfo();
     if (!info) throw redirect({ to: "/entrar" });
-    if (info.role !== "admin") throw redirect({ to: isStaff(info.role) ? "/empresa" : "/cliente" });
+    if (info.role !== "admin") throw redirect({ to: homeFor(info.role) });
   },
   head: () => ({
     meta: [

@@ -15,9 +15,9 @@ export const Route = createFileRoute("/")({
 });
 
 const areas = [
-  { to: "/entrar", label: "Sou cliente", cls: "bg-primary text-primary-foreground" },
-  { to: "/empresa", label: "Sou empresa", cls: "bg-accent text-accent-foreground" },
-  { to: "/admin", label: "Administração", cls: "border border-border bg-card text-foreground" },
+  { to: "/entrar", search: { equipe: false }, label: "Sou cliente", cls: "bg-primary text-primary-foreground" },
+  { to: "/entrar", search: { equipe: true }, label: "Sou empresa", cls: "bg-accent text-accent-foreground" },
+  { to: "/admin", search: undefined, label: "Administração", cls: "border border-border bg-card text-foreground" },
 ] as const;
 
 function Index() {
@@ -29,7 +29,7 @@ function Index() {
       </div>
       <div className="flex flex-col gap-3">
         {areas.map((a) => (
-          <Link key={a.to} to={a.to} className={`flex min-h-14 items-center justify-center rounded-2xl text-lg font-bold ${a.cls}`}>
+          <Link key={a.label} to={a.to} search={a.search as never} className={`flex min-h-14 items-center justify-center rounded-2xl text-lg font-bold ${a.cls}`}>
             {a.label}
           </Link>
         ))}

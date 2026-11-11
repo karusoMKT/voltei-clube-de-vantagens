@@ -4,14 +4,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Store, CheckCircle2, Gift, BarChart3 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
-import { getSessionInfo, isStaff } from "@/lib/session";
+import { getSessionInfo, homeFor, isStaff } from "@/lib/session";
 
 export const Route = createFileRoute("/empresa")({
   ssr: false,
   beforeLoad: async () => {
     const info = await getSessionInfo();
     if (!info) throw redirect({ to: "/entrar" });
-    if (!isStaff(info.role) || !info.companyId) throw redirect({ to: "/cliente" });
+    if (!isStaff(info.role) || !info.companyId) throw redirect({ to: homeFor(info.role) === "/empresa" ? "/cliente" : homeFor(info.role) });
     return { userId: info.userId, companyId: info.companyId };
   },
   component: Layout,

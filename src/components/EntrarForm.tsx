@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { criarConta } from "@/lib/auth.functions";
+import { getSessionInfo, homeFor } from "@/lib/session";
 import { loginSchema, maskPhone, phoneToEmail, signupSchema } from "@/lib/cadastro";
 
 type Errors = Partial<Record<"fullName" | "phone" | "instagram" | "pin" | "form", string | undefined>>;
@@ -31,14 +32,35 @@ function firstErrors(issues: { path: (string | number)[]; message: string }[]): 
   return out;
 }
 
-export function EntrarForm({ slug, companyName }: { slug?: string | undefined; companyName?: string | undefined }) {
-  const [mode, setMode] = useState<"cadastro" | "entrada">("cadastro");
+export function EntrarForm({ slug, companyName, equipe = false }: { slug?: string | undefined; companyName?: string | undefined; equipe?: boolean }) {
+  const [mode, setMode] = useState<"cadastro" | "entrada">(equipe ? "entrada" : "cadastro");
+  const [logadoCliente, setLogadoCliente] = useState(false);
   const [form, setForm] = useState({ fullName: "", phone: "", instagram: "", pin: "" });
   const [errors, setErrors] = useState<Errors>({});
   const [loading, setLoading] = useState(false);
   const [forgot, setForgot] = useState(false);
   const navigate = useNavigate();
   const signup = useServerFn(criarConta);
+
+  useEffect(() => {
+    setMode(equipe ? "entrada" : "cadastro");
+    if (!equipe) return setLogadoCliente(false);
+    getSessionInfo().then((info) => {
+      if (!info) return;
+      if (info.role === "cliente") setLogadoCliente(true);
+      else navigate({ to: homeFor(info.role), replace: true });
+    });
+  }, [equipe, navigate]);
+
+  async function goHome() {
+    const info = await getSessionInfo();
+    navigate({ to: info ? homeFor(info.role) : "/cliente", replace: true });
+  }
+
+  async function sairEEntrar() {
+    await supabase.auth.signOut();
+    setLogadoCliente(false);
+  }
 
   const set = (k: keyof typeof form, v: string) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -65,7 +87,7 @@ export function EntrarForm({ slug, companyName }: { slug?: string | undefined; c
         }
         const err = await signIn(form.phone, form.pin);
         if (err) return setErrors({ form: "Sua conta foi criada! Agora é só entrar com seu PIN." });
-        navigate({ to: "/cliente", replace: true });
+        await goHome();
       } catch {
         setErrors({ form: "Algo não saiu como esperado. Tente de novo em instantes." });
       } finally {
@@ -76,9 +98,12 @@ export function EntrarForm({ slug, companyName }: { slug?: string | undefined; c
       if (!parsed.success) return setErrors(firstErrors(parsed.error.issues));
       setLoading(true);
       const err = await signIn(form.phone, form.pin);
+      if (err) {
+        setLoading(false);
+        return setErrors({ form: "Não encontramos esse WhatsApp com esse PIN. Confira e tente de novo." });
+      }
+      await goHome();
       setLoading(false);
-      if (err) return setErrors({ form: "Não encontramos esse WhatsApp com esse PIN. Confira e tente de novo." });
-      navigate({ to: "/cliente", replace: true });
     }
   }
 
@@ -92,7 +117,7 @@ export function EntrarForm({ slug, companyName }: { slug?: string | undefined; c
       )}
 
       <h1 className="mt-6 text-3xl font-extrabold leading-tight text-foreground">
-        {mode === "cadastro" ? "Entre no clube e ganhe a cada volta." : "Que bom te ver de novo!"}
+        {equipe ? "Entrada da equipe" : mode === "cadastro" ? "Entre no clube e ganhe a cada volta." : "Que bom te ver de novo!"}
       </h1>
       <p className="mt-2 text-base text-muted-foreground">
         {mode === "cadastro"
@@ -100,7 +125,14 @@ export function EntrarForm({ slug, companyName }: { slug?: string | undefined; c
           : "Entre com seu WhatsApp e PIN."}
       </p>
 
-      <form onSubmit={onSubmit} noValidate className="mt-8 flex flex-col gap-5">
+      {logadoCliente && (
+        <div className="mt-8 flex flex-col gap-3 rounded-2xl bg-cream px-4 py-4">
+          <p className="text-base font-semibold text-foreground">Você está logado como cliente. Quer sair e entrar como empresa?</p>
+          <Button type="button" variant="hero" size="xl" onClick={sairEEntrar}>Sair e entrar</Button>
+        </div>
+      )}
+
+      {!logadoCliente && <form onSubmit={onSubmit} noValidate className="mt-8 flex flex-col gap-5">
         {mode === "cadastro" && (
           <Field label="Seu nome" error={errors.fullName}>
             <input className={inputCls} autoComplete="name" value={form.fullName} aria-invalid={!!errors.fullName}
@@ -133,7 +165,7 @@ export function EntrarForm({ slug, companyName }: { slug?: string | undefined; c
         <Button type="submit" variant="hero" size="xl" disabled={loading}>
           {loading ? "Só um instante…" : mode === "cadastro" ? "Criar minha conta" : "Entrar"}
         </Button>
-      </form>
+      </form>}
 
       {mode === "entrada" && (
         <div className="mt-4 text-center">
@@ -148,13 +180,13 @@ export function EntrarForm({ slug, companyName }: { slug?: string | undefined; c
         </div>
       )}
 
-      <div className="mt-auto pt-8 text-center text-sm text-muted-foreground">
+      {!equipe && <div className="mt-auto pt-8 text-center text-sm text-muted-foreground">
         {mode === "cadastro" ? "Já tem conta?" : "Ainda não tem conta?"}{" "}
         <button type="button" className="min-h-12 font-bold text-primary"
           onClick={() => { setMode(mode === "cadastro" ? "entrada" : "cadastro"); setErrors({}); setForgot(false); }}>
           {mode === "cadastro" ? "Entrar" : "Criar minha conta"}
         </button>
-      </div>
+      </div>}
     </div>
   );
 }
