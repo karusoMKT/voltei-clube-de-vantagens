@@ -19,6 +19,7 @@ export type Database = {
           active: boolean
           created_at: string
           id: string
+          monthly_fee: number
           name: string
           plan: string
           points_per_real: number
@@ -29,6 +30,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           id?: string
+          monthly_fee?: number
           name: string
           plan?: string
           points_per_real?: number
@@ -39,6 +41,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           id?: string
+          monthly_fee?: number
           name?: string
           plan?: string
           points_per_real?: number
@@ -416,6 +419,7 @@ export type Database = {
       }
     }
     Enums: {
+      company_plan: "basic" | "pro" | "premium"
       photo_status: "pendente" | "aprovada" | "recusada"
       redemption_status: "pendente" | "entregue" | "cancelado"
       transaction_type:
@@ -553,6 +557,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      company_plan: ["basic", "pro", "premium"],
       photo_status: ["pendente", "aprovada", "recusada"],
       redemption_status: ["pendente", "entregue", "cancelado"],
       transaction_type: [
