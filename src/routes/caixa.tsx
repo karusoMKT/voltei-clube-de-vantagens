@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Store, Gift } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import { signOutAndLeave } from "@/lib/logout";
 import { getSessionInfo, homeFor, isStaff } from "@/lib/session";
 
 export const Route = createFileRoute("/caixa")({
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/caixa")({
 function Layout() {
   const { companyId } = Route.useRouteContext();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   useEffect(() => {
     const channel = supabase
       .channel(`caixa-${companyId}-${Math.random().toString(36).slice(2)}`)
@@ -29,9 +31,13 @@ function Layout() {
     return () => { supabase.removeChannel(channel); };
   }, [companyId, qc]);
   return (
-    <AppShell area="Caixa" tabs={[
-      { to: "/caixa", label: "Caixa", icon: Store, exact: true },
-      { to: "/caixa/resgates", label: "Resgates", icon: Gift },
-    ]} />
+    <AppShell
+      area="Caixa"
+      onSignOut={() => signOutAndLeave({ queryClient: qc, navigate })}
+      tabs={[
+        { to: "/caixa", label: "Caixa", icon: Store, exact: true },
+        { to: "/caixa/resgates", label: "Resgates", icon: Gift },
+      ]}
+    />
   );
 }

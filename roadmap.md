@@ -14,3 +14,8 @@
 - [x] Completar indicadores mensais e contatos dos clientes ausentes.
 - [x] Testar cálculos, isolamento e fluxos reais: 7 testes locais e 6 de acesso reais; regra, cadastro, ativação, resumo e mensagem de WhatsApp verificados.
 - [x] Área /admin com planos (Básico, Profissional, Premium), MRR, nova empresa e acesso do dono; bloqueio por plano no painel da empresa.
+
+# Sessão e botão Sair
+- [x] Botão Sair no topo da tela /caixa: encerra a sessão, limpa o cache e volta para a entrada.
+- [x] Redirecionar na entrada só com sessão ativa e válida; depois de Sair a tela de login permanece aberta.
+- [x] Testar: 37 testes aprovados; entrada, Sair e botão Voltar verificados no app.

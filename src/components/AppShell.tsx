@@ -1,4 +1,5 @@
 import { Link, Outlet } from "@tanstack/react-router";
+import { LogOut } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type Tab = { to: string; label: string; icon: LucideIcon; exact?: boolean };
@@ -11,12 +12,32 @@ export function PageTitle({ title }: { title: string }) {
   );
 }
 
-export function AppShell({ area, tabs }: { area: string; tabs: Tab[] }) {
+export function AppShell({
+  area,
+  tabs,
+  onSignOut,
+}: {
+  area: string;
+  tabs: Tab[];
+  onSignOut?: () => void;
+}) {
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
-      <header className="flex items-center justify-between px-5 pt-5">
+      <header className="flex items-center justify-between gap-2 px-5 pt-5">
         <Link to="/" className="text-xl font-extrabold text-primary">Voltei</Link>
-        <span className="rounded-full bg-secondary px-3 py-1 text-sm font-bold text-secondary-foreground">{area}</span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-secondary px-3 py-1 text-sm font-bold text-secondary-foreground">{area}</span>
+          {onSignOut && (
+            <button
+              type="button"
+              onClick={onSignOut}
+              className="flex min-h-12 items-center gap-1.5 rounded-2xl border border-border bg-card px-3 text-sm font-bold text-muted-foreground transition-colors hover:text-foreground active:text-foreground"
+            >
+              <LogOut className="h-4 w-4" />
+              Sair
+            </button>
+          )}
+        </div>
       </header>
       <main className="flex-1 pb-28"><Outlet /></main>
       <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-md border-t border-border bg-card px-2 pb-[env(safe-area-inset-bottom)]">

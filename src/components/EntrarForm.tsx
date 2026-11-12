@@ -43,8 +43,11 @@ export function EntrarForm({ slug, companyName }: { slug?: string | undefined; c
   const navigate = useNavigate();
   const signup = useServerFn(criarConta);
 
+  // Só redireciona com sessão ativa e válida; sem isso a tela de login fica aberta.
   useEffect(() => {
-    getSessionInfo().then((info) => { if (info) navigate({ to: homeFor(info.role), replace: true }); });
+    let alive = true;
+    getSessionInfo().then((info) => { if (alive && info) navigate({ to: homeFor(info.role), replace: true }); });
+    return () => { alive = false; };
   }, [navigate]);
 
   async function goHome() {
