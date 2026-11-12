@@ -19,3 +19,5 @@
 - [x] Botão Sair no topo da tela /caixa: encerra a sessão, limpa o cache e volta para a entrada.
 - [x] Redirecionar na entrada só com sessão ativa e válida; depois de Sair a tela de login permanece aberta.
 - [x] Testar: 37 testes aprovados; entrada, Sair e botão Voltar verificados no app.
+- [x] Botão Sair também no cabeçalho de /empresa, /cliente e /admin, com o mesmo padrão visual.
+- [x] Testar nas três áreas: entrada, Sair e botão Voltar verificados; 37 testes aprovados.

@@ -3,14 +3,14 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, UserPlus, LogOut, MessageCircle } from "lucide-react";
-import { PageTitle } from "@/components/AppShell";
+import { Plus, UserPlus, MessageCircle } from "lucide-react";
+import { AreaHeader, PageTitle } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loading, Empty } from "@/components/Empty";
-import { supabase } from "@/integrations/supabase/client";
+import { signOutAndLeave } from "@/lib/logout";
 import { getSessionInfo, homeFor } from "@/lib/session";
 import { maskPhone, accessWhatsappLink } from "@/lib/cadastro";
 import { PLANS, type PlanId, planLabel, mrr, brl, companySchema, ownerSchema } from "@/lib/plans";
@@ -46,14 +46,9 @@ function Admin() {
   const [newOpen, setNewOpen] = useState(false);
   const [ownerFor, setOwnerFor] = useState<Company | null>(null);
 
-  async function sair() {
-    await qc.cancelQueries(); qc.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/entrar", replace: true });
-  }
-
   return (
     <div className="mx-auto min-h-screen max-w-md pb-10">
+      <AreaHeader area="Admin" onSignOut={() => signOutAndLeave({ queryClient: qc, navigate })} />
       <PageTitle title="Administração" />
       <div className="space-y-5 px-5">
         {isPending ? <Loading /> : error || !data ? <div role="alert">{error?.message ?? "Erro ao carregar."}</div> : <>
@@ -82,7 +77,6 @@ function Admin() {
             </li>
           ))}</ul>}
         </>}
-        <Button variant="ghost" size="xl" className="w-full rounded-2xl" onClick={sair}><LogOut />Sair</Button>
       </div>
       <NovaEmpresa open={newOpen} onOpenChange={setNewOpen} />
       <CriarDono company={ownerFor} onClose={() => setOwnerFor(null)} />

@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Store, CheckCircle2, Gift, BarChart3, Users } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import { signOutAndLeave } from "@/lib/logout";
 import { getSessionInfo, homeFor } from "@/lib/session";
 
 export const Route = createFileRoute("/empresa")({
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/empresa")({
 function Layout() {
   const { companyId } = Route.useRouteContext();
   const qc = useQueryClient();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const channel = supabase
@@ -36,6 +38,7 @@ function Layout() {
   return (
     <AppShell
       area="Empresa"
+      onSignOut={() => signOutAndLeave({ queryClient: qc, navigate })}
       tabs={[
         { to: "/empresa", label: "Caixa", icon: Store, exact: true },
         { to: "/empresa/aprovar", label: "Aprovar", icon: CheckCircle2 },

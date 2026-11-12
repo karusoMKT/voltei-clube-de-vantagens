@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Home, Gift, QrCode, User } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import { signOutAndLeave } from "@/lib/logout";
 import { getSessionInfo, homeFor } from "@/lib/session";
 
 export const Route = createFileRoute("/cliente")({
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/cliente")({
 function Layout() {
   const { userId } = Route.useRouteContext();
   const qc = useQueryClient();
+  const navigate = useNavigate();
 
   // Saldo, histórico e resgates atualizam sozinhos
   useEffect(() => {
@@ -40,6 +42,7 @@ function Layout() {
   return (
     <AppShell
       area="Cliente"
+      onSignOut={() => signOutAndLeave({ queryClient: qc, navigate })}
       tabs={[
         { to: "/cliente", label: "Início", icon: Home, exact: true },
         { to: "/cliente/premios", label: "Prêmios", icon: Gift },
