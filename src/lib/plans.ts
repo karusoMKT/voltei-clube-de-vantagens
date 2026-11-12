@@ -19,9 +19,33 @@ export function mrr(companies: { active: boolean; monthly_fee: number }[]) {
   return companies.filter((c) => c.active).reduce((s, c) => s + Number(c.monthly_fee), 0);
 }
 
+/** Só minúsculas, sem acento, sem caractere especial: tudo que sobra vira hífen. */
+function slugChars(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+/, "")
+    .slice(0, 60);
+}
+
+/** "Av Ubaitaba 123" -> "av-ubaitaba-123" */
+export function slugify(value: string) {
+  return slugChars(value).replace(/-+$/, "");
+}
+
+/** Igual a slugify, mas guarda o hífen final enquanto a pessoa digita a próxima palavra. */
+export function slugTyping(value: string) {
+  return slugChars(value);
+}
+
 export const companySchema = z.object({
   name: z.string().trim().min(2, "Digite o nome da loja.").max(80, "Nome muito longo."),
-  slug: z.string().trim().toLowerCase().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Use letras minúsculas, números e hífen.").max(60),
+  slug: z
+    .string()
+    .transform(slugify)
+    .refine((v) => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(v), "Use letras minúsculas, números e hífen."),
   plan: z.enum(["basic", "pro", "premium"]),
   monthlyFee: z.coerce.number().min(0, "Mensalidade inválida.").max(100000, "Mensalidade inválida."),
 });

@@ -13,7 +13,7 @@ import { Loading, Empty } from "@/components/Empty";
 import { signOutAndLeave } from "@/lib/logout";
 import { getSessionInfo, homeFor } from "@/lib/session";
 import { maskPhone, accessWhatsappLink } from "@/lib/cadastro";
-import { PLANS, type PlanId, planLabel, mrr, brl, companySchema, ownerSchema } from "@/lib/plans";
+import { PLANS, type PlanId, planLabel, mrr, brl, companySchema, ownerSchema, slugTyping } from "@/lib/plans";
 import { listCompanies, createCompany, createOwner } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin")({
@@ -128,7 +128,7 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
     </div> :
     <form onSubmit={submit} className="space-y-4">
       <Field label="Nome da loja" error={errors["name"]}><Input className="h-12 rounded-2xl" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
-      <Field label="Endereço (slug)" error={errors["slug"]}><Input className="h-12 rounded-2xl" placeholder="minha-loja" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase() })} /></Field>
+      <Field label="Endereço (slug)" error={errors["slug"]}><Input className="h-12 rounded-2xl" placeholder="minha-loja" value={form.slug} onChange={(e) => setForm({ ...form, slug: slugTyping(e.target.value) })} /></Field>
       <Field label="Plano">
         <div className="grid gap-2">{(Object.keys(PLANS) as PlanId[]).map((p) => (
           <button type="button" key={p} onClick={() => setForm({ ...form, plan: p, monthlyFee: String(PLANS[p].fee) })}
