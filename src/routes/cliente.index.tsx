@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ImagePlus } from "lucide-react";
+import { SatisfactionCard } from "@/components/SatisfactionCard";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Empty, Loading } from "@/components/Empty";
@@ -53,6 +54,7 @@ function Inicio() {
       )}
 
       {m?.photoEnabled && <Button asChild variant="hero" size="xl"><Link to="/cliente/foto"><ImagePlus />Enviar foto (+{m.photoPoints} pontos)</Link></Button>}
+      {m?.surveyEnabled && <SatisfactionCard companyId={m.companyId} userId={data.profile.id} points={m.surveyPoints} url={m.googleUrl} />}
 
       <section>
         <h2 className="mb-3 text-lg font-extrabold text-foreground">Histórico recente</h2>

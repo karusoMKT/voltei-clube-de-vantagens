@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Store, CheckCircle2, Gift, BarChart3, Users } from "lucide-react";
+import { Store, CheckCircle2, Gift, BarChart3, Users, Settings } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { signOutAndLeave } from "@/lib/logout";
@@ -45,6 +45,7 @@ function Layout() {
         { to: "/empresa/premios", label: "Prêmios", icon: Gift },
         { to: "/empresa/resumo", label: "Resumo", icon: BarChart3 },
         { to: "/empresa/equipe", label: "Equipe", icon: Users },
+        { to: "/empresa/configuracoes", label: "Config.", icon: Settings },
       ]}
     />
   );

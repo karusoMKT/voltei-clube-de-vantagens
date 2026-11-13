@@ -24,3 +24,8 @@
 
 ## Prêmios: limite Básico, sugestão e edição
 - [x] Limite 3 ativos no Básico, sugestão 5%, editar prêmio
+
+## Pesquisa de satisfação Premium
+- [x] Adicionar configuração e pesquisa interna com pontos atômicos, uma resposta por cliente/loja.
+- [x] Configuração do dono, notas 1–5 do cliente e convite opcional ao Google sem seleção por nota.
+- [x] Executar suíte e verificar entrada e proteção da página em computador/celular. Fluxo autenticado não verificado: Supabase externo sem sessão disponível; testes de acesso reais são opt-in.

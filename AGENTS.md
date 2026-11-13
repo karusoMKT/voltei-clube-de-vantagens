@@ -36,3 +36,4 @@ use the editor.
 - Company reward and rate mutations use staff-authorized RPCs; monthly summaries aggregate in Postgres with RLS to avoid row-limit truncation.
 - Monthly summaries use America/Sao_Paulo; member count is all current members, positive point transactions and redemption creations count in the month, and never-purchasers become inactive after their membership is older than the inactivity window.
 - Role areas: admin→/admin, dono→/empresa (owner-only management), funcionario and dono→/caixa (checkout + reward delivery only); reward/rate/summary RPCs check is_owner_of or is_admin, so cashiers stay out even via API.
+- Satisfaction rewards use a dedicated atomic RPC and unique customer/company response; all scores earn the same configured points, and Google invitations are independent of scores to avoid review gating.

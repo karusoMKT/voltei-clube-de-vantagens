@@ -18,6 +18,8 @@ export type Database = {
         Row: {
           active: boolean
           created_at: string
+          google_review_points: number
+          google_review_url: string | null
           id: string
           monthly_fee: number
           name: string
@@ -29,6 +31,8 @@ export type Database = {
         Insert: {
           active?: boolean
           created_at?: string
+          google_review_points?: number
+          google_review_url?: string | null
           id?: string
           monthly_fee?: number
           name: string
@@ -40,6 +44,8 @@ export type Database = {
         Update: {
           active?: boolean
           created_at?: string
+          google_review_points?: number
+          google_review_url?: string | null
           id?: string
           monthly_fee?: number
           name?: string
@@ -255,6 +261,48 @@ export type Database = {
           },
         ]
       }
+      satisfaction_responses: {
+        Row: {
+          company_id: string
+          created_at: string
+          customer_id: string
+          id: string
+          points_awarded: number
+          rating: number
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          points_awarded: number
+          rating: number
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          points_awarded?: number
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "satisfaction_responses_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "satisfaction_responses_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount_reais: number | null
@@ -430,9 +478,17 @@ export type Database = {
       }
       recusar_foto: { Args: { _submission_id: string }; Returns: undefined }
       resgatar_premio: { Args: { _reward_id: string }; Returns: string }
+      responder_pesquisa: {
+        Args: { _company_id: string; _rating: number }
+        Returns: number
+      }
       resumo_empresa: { Args: { _company_id: string }; Returns: Json }
       revisar_print: {
         Args: { _aprovar: boolean; _points?: number; _submission: string }
+        Returns: undefined
+      }
+      salvar_configuracao_pesquisa: {
+        Args: { _company_id: string; _points: number; _url: string }
         Returns: undefined
       }
       salvar_regra_pontos: {
@@ -451,6 +507,7 @@ export type Database = {
         | "indicacao"
         | "resgate"
         | "ajuste"
+        | "pesquisa"
       user_role: "cliente" | "funcionario" | "dono" | "admin"
     }
     CompositeTypes: {
@@ -589,6 +646,7 @@ export const Constants = {
         "indicacao",
         "resgate",
         "ajuste",
+        "pesquisa",
       ],
       user_role: ["cliente", "funcionario", "dono", "admin"],
     },

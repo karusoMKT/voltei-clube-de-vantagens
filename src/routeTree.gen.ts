@@ -25,6 +25,7 @@ import { Route as ClientePremiosRouteImport } from './routes/cliente.premios'
 import { Route as ClienteQrRouteImport } from './routes/cliente.qr'
 import { Route as EmpresaIndexRouteImport } from './routes/empresa.index'
 import { Route as EmpresaAprovarRouteImport } from './routes/empresa.aprovar'
+import { Route as EmpresaConfiguracoesRouteImport } from './routes/empresa.configuracoes'
 import { Route as EmpresaEquipeRouteImport } from './routes/empresa.equipe'
 import { Route as EmpresaPremiosRouteImport } from './routes/empresa.premios'
 import { Route as EmpresaResumoRouteImport } from './routes/empresa.resumo'
@@ -109,6 +110,11 @@ const EmpresaAprovarRoute = EmpresaAprovarRouteImport.update({
   path: '/aprovar',
   getParentRoute: () => EmpresaRoute,
 } as any)
+const EmpresaConfiguracoesRoute = EmpresaConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => EmpresaRoute,
+} as any)
 const EmpresaEquipeRoute = EmpresaEquipeRouteImport.update({
   id: '/equipe',
   path: '/equipe',
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/cliente/premios': typeof ClientePremiosRoute
   '/cliente/qr': typeof ClienteQrRoute
   '/empresa/aprovar': typeof EmpresaAprovarRoute
+  '/empresa/configuracoes': typeof EmpresaConfiguracoesRoute
   '/empresa/equipe': typeof EmpresaEquipeRoute
   '/empresa/premios': typeof EmpresaPremiosRoute
   '/empresa/resumo': typeof EmpresaResumoRoute
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/cliente/premios': typeof ClientePremiosRoute
   '/cliente/qr': typeof ClienteQrRoute
   '/empresa/aprovar': typeof EmpresaAprovarRoute
+  '/empresa/configuracoes': typeof EmpresaConfiguracoesRoute
   '/empresa/equipe': typeof EmpresaEquipeRoute
   '/empresa/premios': typeof EmpresaPremiosRoute
   '/empresa/resumo': typeof EmpresaResumoRoute
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/cliente/premios': typeof ClientePremiosRoute
   '/cliente/qr': typeof ClienteQrRoute
   '/empresa/aprovar': typeof EmpresaAprovarRoute
+  '/empresa/configuracoes': typeof EmpresaConfiguracoesRoute
   '/empresa/equipe': typeof EmpresaEquipeRoute
   '/empresa/premios': typeof EmpresaPremiosRoute
   '/empresa/resumo': typeof EmpresaResumoRoute
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
     | '/cliente/premios'
     | '/cliente/qr'
     | '/empresa/aprovar'
+    | '/empresa/configuracoes'
     | '/empresa/equipe'
     | '/empresa/premios'
     | '/empresa/resumo'
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/cliente/premios'
     | '/cliente/qr'
     | '/empresa/aprovar'
+    | '/empresa/configuracoes'
     | '/empresa/equipe'
     | '/empresa/premios'
     | '/empresa/resumo'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/cliente/premios'
     | '/cliente/qr'
     | '/empresa/aprovar'
+    | '/empresa/configuracoes'
     | '/empresa/equipe'
     | '/empresa/premios'
     | '/empresa/resumo'
@@ -373,6 +385,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresaAprovarRouteImport
       parentRoute: typeof EmpresaRoute
     }
+    '/empresa/configuracoes': {
+      id: '/empresa/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/empresa/configuracoes'
+      preLoaderRoute: typeof EmpresaConfiguracoesRouteImport
+      parentRoute: typeof EmpresaRoute
+    }
     '/empresa/equipe': {
       id: '/empresa/equipe'
       path: '/equipe'
@@ -430,6 +449,7 @@ const ClienteRouteWithChildren =
 
 interface EmpresaRouteChildren {
   EmpresaAprovarRoute: typeof EmpresaAprovarRoute
+  EmpresaConfiguracoesRoute: typeof EmpresaConfiguracoesRoute
   EmpresaEquipeRoute: typeof EmpresaEquipeRoute
   EmpresaPremiosRoute: typeof EmpresaPremiosRoute
   EmpresaResumoRoute: typeof EmpresaResumoRoute
@@ -438,6 +458,7 @@ interface EmpresaRouteChildren {
 
 const EmpresaRouteChildren: EmpresaRouteChildren = {
   EmpresaAprovarRoute: EmpresaAprovarRoute,
+  EmpresaConfiguracoesRoute: EmpresaConfiguracoesRoute,
   EmpresaEquipeRoute: EmpresaEquipeRoute,
   EmpresaPremiosRoute: EmpresaPremiosRoute,
   EmpresaResumoRoute: EmpresaResumoRoute,

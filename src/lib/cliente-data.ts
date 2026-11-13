@@ -18,7 +18,7 @@ export const clienteQuery = queryOptions({
       .from("profiles").select("id, full_name, qr_token, instagram").eq("id", id).single();
     if (error) throw error;
     const { data: m } = await supabase
-      .from("memberships").select("company_id, points_balance, companies(name, points_photo, plan)")
+      .from("memberships").select("company_id, points_balance, companies(name, points_photo, plan, active, google_review_url, google_review_points)")
       .eq("customer_id", id).order("created_at").limit(1).maybeSingle();
     let rewards: Reward[] = [];
     if (m) {
@@ -28,7 +28,7 @@ export const clienteQuery = queryOptions({
     }
     return {
       profile,
-      membership: m ? { companyId: m.company_id, balance: m.points_balance, companyName: m.companies?.name ?? "", photoPoints: m.companies?.points_photo ?? 30, photoEnabled: m.companies?.plan === "premium" } : null,
+      membership: m ? { companyId: m.company_id, balance: m.points_balance, companyName: m.companies?.name ?? "", photoPoints: m.companies?.points_photo ?? 30, photoEnabled: m.companies?.plan === "premium", surveyEnabled: m.companies?.plan === "premium" && m.companies.active, surveyPoints: m.companies?.google_review_points ?? 30, googleUrl: m.companies?.google_review_url ?? null } : null,
       rewards,
     };
   },
@@ -79,6 +79,6 @@ export const firstName = (n?: string | null) => (n ?? "").trim().split(/\s+/)[0]
 export const shortCode = (token: string) => token.slice(0, 6).toUpperCase();
 
 export const tipoLabel: Record<string, string> = {
-  compra: "Compra", resgate: "Resgate", foto: "Foto", google: "Avaliação no Google",
+  compra: "Compra", resgate: "Resgate", foto: "Foto", google: "Avaliação no Google", pesquisa: "Pesquisa de satisfação",
   indicacao: "Indicação", ajuste: "Ajuste da loja",
 };
