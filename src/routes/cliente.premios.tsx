@@ -1,5 +1,5 @@
 import { useCustomerWallet } from "@/components/CustomerWallet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Gift } from "lucide-react";
@@ -29,6 +29,7 @@ function Premios() {
   const { data: resgates } = useQuery(resgatesQuery(companyId));
   const [codigo, setCodigo] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  useEffect(() => { setCodigo(null); setErro(null); }, [companyId]);
 
   const resgatar = useMutation({
     mutationFn: async (rewardId: string) => {

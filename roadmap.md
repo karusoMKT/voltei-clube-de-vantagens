@@ -31,10 +31,11 @@
 - [x] Executar suíte e verificar entrada e proteção da página em computador/celular. Fluxo autenticado não verificado: Supabase externo sem sessão disponível; testes de acesso reais são opt-in.
 
 ## Multi-loja e logos
-- [ ] Adicionar cidade, logos, descoberta segura e participação com zero pontos.
-- [ ] Cadastro/edição de empresas com logo e cidade; cabeçalhos com identidade da loja.
-- [ ] Carteira com seleção de loja, prêmios, fotos e extrato separados; vitrine de lojas ativas.
-- [ ] Testar suíte e fluxos disponíveis.
+- [x] Adicionar cidade, logos, descoberta segura e participação com zero pontos.
+- [x] Cadastro/edição de empresas com logo e cidade; cabeçalhos com identidade da loja.
+- [x] Carteira com seleção de loja, prêmios, fotos e extrato separados; vitrine de lojas ativas.
+- [x] Testar suíte e fluxos disponíveis: 51 aprovados, 46 testes reais ignorados sem tokens; entrada mobile e proteção verificadas.
+- [ ] Verificar participação, troca de loja e upload autenticados: sessão indisponível no Supabase externo.
 - [ ] Liberar bucket público company-logos: bloqueado pela configuração do workspace.
 
 ## Auditoria Advisor Supabase
