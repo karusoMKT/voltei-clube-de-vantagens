@@ -29,3 +29,9 @@
 - [x] Adicionar configuração e pesquisa interna com pontos atômicos, uma resposta por cliente/loja.
 - [x] Configuração do dono, notas 1–5 do cliente e convite opcional ao Google sem seleção por nota.
 - [x] Executar suíte e verificar entrada e proteção da página em computador/celular. Fluxo autenticado não verificado: Supabase externo sem sessão disponível; testes de acesso reais são opt-in.
+
+## Auditoria Advisor Supabase
+- [x] Inventariar 20 avisos atuais, RLS, funções, permissões e armazenamento.
+- [x] Mostrar SQL e aplicar bloqueio de helper interno e permissões mínimas da pesquisa, preservando RPCs autorizadas.
+- [x] Validar 9 invariantes no banco: RLS, search_path, bloqueios, leitura da pesquisa e prints privados; suíte com 48 aprovados e 43 testes reais ignorados por falta de tokens.
+- [ ] Proteção de senhas vazadas: depende de configuração no Supabase externo e compatibilidade com PIN de 6 dígitos.

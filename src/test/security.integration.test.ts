@@ -18,7 +18,7 @@ async function request(path: string, token: string | undefined, method = "GET", 
 }
 
 describe.skipIf(!live)("live Voltei access rules", () => {
-  for (const table of ["companies", "profiles", "user_roles", "memberships", "transactions", "redemptions", "rewards", "photo_submissions"]) {
+  for (const table of ["companies", "profiles", "user_roles", "memberships", "transactions", "redemptions", "rewards", "photo_submissions", "satisfaction_responses"]) {
     it(`visitor cannot read ${table}`, async () => {
       const r = await request(`/rest/v1/${table}?select=*&limit=1`, undefined);
       expect(r.ok).toBe(false);
@@ -71,5 +71,18 @@ describe.skipIf(!live)("live Voltei access rules", () => {
   it("client cannot call the internal points function", async () => {
     const r = await request("/rest/v1/rpc/_apply_points", clientToken, "POST", { _company: foreignCompany, _customer: clientId, _type: "ajuste", _points: 999999, _reais: 0 });
     expect(r.ok).toBe(false);
+  });
+  it("client cannot directly create a rewarded survey response", async () => {
+    const r = await request("/rest/v1/satisfaction_responses", clientToken, "POST", { company_id: foreignCompany, customer_id: clientId, rating: 5, points_awarded: 999999 });
+    expect(r.ok).toBe(false);
+  });
+  it("owner cannot call the internal plan helper directly", async () => {
+    const r = await request("/rest/v1/rpc/company_plan_allows", ownerToken, "POST", { _company: foreignCompany, _feature: "premium" });
+    expect(r.ok).toBe(false);
+  });
+  it("authenticated owners retain the role-check RPC needed by protected panels", async () => {
+    const r = await request("/rest/v1/rpc/is_admin", ownerToken, "POST", {});
+    expect(r.ok).toBe(true);
+    expect(await r.json()).toBe(false);
   });
 });
