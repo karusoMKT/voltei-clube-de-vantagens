@@ -20,7 +20,7 @@ function Perfil() {
   return (
     <>
       <PageTitle title="Perfil" />
-      <TrocarPin />
+      <div className="px-5 pt-6"><TrocarPin /></div>
     </>
   );
 }

@@ -1,6 +1,7 @@
 import { Link, Outlet } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { CompanyLogo } from "@/components/CompanyLogo";
+import { ChangePinDialog } from "@/components/ChangePinDialog";
 import type { ReactNode } from "react";
 import { LogOut } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -22,6 +23,7 @@ export function AreaHeader({ area, onSignOut }: { area: string; onSignOut?: (() 
       <Link to="/" className="text-xl font-extrabold text-primary">Voltei</Link>
       <div className="flex items-center gap-2">
         <span className="rounded-full bg-secondary px-3 py-1 text-sm font-bold text-secondary-foreground">{area}</span>
+        {(area === "Empresa" || area === "Caixa" || area === "Admin") && <ChangePinDialog />}
         {onSignOut && (
           <Button variant="outline"
             type="button"

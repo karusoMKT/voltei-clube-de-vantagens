@@ -40,3 +40,4 @@ use the editor.
 - CustomerWallet owns the selected membership across customer routes; all reward, history, photo and redemption reads are scoped to that company, with no cross-store balances.
 - Store discovery projects identity fields through a customer-authorized RPC; joining is idempotent and initializes only new memberships at zero points.
 - Company logos use admin-authorized, byte-validated uploads and signed read URLs so workspace public-bucket restrictions do not break authenticated displays.
+- All roles share one PIN form; validate current/new/confirmation and reauthenticate the verified account with Supabase before updating its password.

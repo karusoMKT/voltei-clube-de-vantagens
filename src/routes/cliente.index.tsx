@@ -3,6 +3,7 @@ import { useCustomerWallet } from "@/components/CustomerWallet";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ImagePlus } from "lucide-react";
 import { SatisfactionCard } from "@/components/SatisfactionCard";
+import { GoogleInvitation } from "@/components/GoogleInvitation";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Empty, Loading } from "@/components/Empty";
@@ -66,7 +67,8 @@ function Inicio() {
         {historico && historico.length > 0 ? (
           <ul className="divide-y divide-border overflow-hidden rounded-3xl border border-border bg-card">
             {historico.map((t) => (
-              <li key={t.id} className="flex items-center justify-between px-5 py-4">
+              <li key={t.id} className="px-5 py-4">
+                <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="font-bold text-foreground">{tipoLabel[t.type] ?? t.type}</p>
                   <p className="text-sm text-muted-foreground">{fmtData(t.created_at)}</p>
@@ -74,6 +76,8 @@ function Inicio() {
                 <span className={`text-lg font-extrabold ${t.points >= 0 ? "text-primary" : "text-muted-foreground"}`}>
                   {t.points > 0 ? `+${t.points}` : t.points}
                 </span>
+                </div>
+                {t.type === "pesquisa" && m && <div className="mt-3"><GoogleInvitation submitted url={m.googleUrl} /></div>}
               </li>
             ))}
           </ul>

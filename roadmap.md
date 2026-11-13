@@ -3,6 +3,12 @@
 - [x] Mostrar SQL e aplicar correções de acesso sem novas funcionalidades.
 - [x] Testar bloqueios e acessos permitidos; registrar resultado (33 testes aprovados).
 
+## Convite Google e PIN de todos os perfis
+- [x] Manter convite Google imediatamente após pesquisa e no histórico/status, sem pontos extras.
+- [x] Formulário compartilhado com PIN atual, novo e confirmação; acesso nos cabeçalhos de empresa, caixa e admin.
+- [x] Testar validação e reautenticação com mocks; suíte com 57 aprovados, 46 testes reais ignorados; quatro áreas protegidas e entrada mobile sem erros.
+- [ ] Verificar pesquisa e troca de PIN com conta real: sessão indisponível no Supabase externo.
+
 # Pontos por foto
 - [x] Proteger envios, limites diários e aprovação atômica no Supabase.
 - [x] Criar envio com prévia e revisão dos prints no visual do Voltei.
