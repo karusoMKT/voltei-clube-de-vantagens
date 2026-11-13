@@ -17,10 +17,12 @@ export type Database = {
       companies: {
         Row: {
           active: boolean
+          city: string | null
           created_at: string
           google_review_points: number
           google_review_url: string | null
           id: string
+          logo_url: string | null
           monthly_fee: number
           name: string
           plan: string
@@ -30,10 +32,12 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          city?: string | null
           created_at?: string
           google_review_points?: number
           google_review_url?: string | null
           id?: string
+          logo_url?: string | null
           monthly_fee?: number
           name: string
           plan?: string
@@ -43,10 +47,12 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          city?: string | null
           created_at?: string
           google_review_points?: number
           google_review_url?: string | null
           id?: string
+          logo_url?: string | null
           monthly_fee?: number
           name?: string
           plan?: string
@@ -414,6 +420,19 @@ export type Database = {
         }
         Returns: string
       }
+      admin_editar_empresa: {
+        Args: {
+          _active: boolean
+          _city: string
+          _id: string
+          _logo_url: string
+          _monthly_fee: number
+          _name: string
+          _plan: string
+          _slug: string
+        }
+        Returns: undefined
+      }
       aprovar_foto: { Args: { _submission_id: string }; Returns: number }
       ativar_premio: {
         Args: { _active: boolean; _reward_id: string }
@@ -476,6 +495,17 @@ export type Database = {
         }
         Returns: number
       }
+      lojas_parceiras: {
+        Args: never
+        Returns: {
+          city: string
+          id: string
+          logo_url: string
+          name: string
+          slug: string
+        }[]
+      }
+      participar_clube: { Args: { _company_id: string }; Returns: undefined }
       recusar_foto: { Args: { _submission_id: string }; Returns: undefined }
       resgatar_premio: { Args: { _reward_id: string }; Returns: string }
       responder_pesquisa: {
