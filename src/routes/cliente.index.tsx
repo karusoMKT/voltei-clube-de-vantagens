@@ -1,10 +1,12 @@
+import { PartnerStores } from "@/components/PartnerStores";
+import { useCustomerWallet } from "@/components/CustomerWallet";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ImagePlus } from "lucide-react";
 import { SatisfactionCard } from "@/components/SatisfactionCard";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Empty, Loading } from "@/components/Empty";
-import { clienteQuery, firstName, historicoQuery, photosQuery, proximoPremio, tipoLabel } from "@/lib/cliente-data";
+import { firstName, historicoQuery, photosQuery, proximoPremio, tipoLabel } from "@/lib/cliente-data";
 
 export const Route = createFileRoute("/cliente/")({
   head: () => ({
@@ -23,9 +25,9 @@ export const Route = createFileRoute("/cliente/")({
 const fmtData = (d: string) => new Date(d).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
 
 function Inicio() {
-  const { data, isPending } = useQuery(clienteQuery);
-  const { data: historico } = useQuery(historicoQuery);
-  const { data: photos } = useQuery(photosQuery);
+  const { data, isPending, companyId } = useCustomerWallet();
+  const { data: historico } = useQuery(historicoQuery(companyId));
+  const { data: photos } = useQuery(photosQuery(companyId));
   if (isPending || !data) return <Loading />;
   const m = data.membership;
   const balance = m?.balance ?? 0;
@@ -53,8 +55,10 @@ function Inicio() {
         <Empty>Você ainda não está no clube de nenhuma loja. Peça o link no balcão.</Empty>
       )}
 
+      <PartnerStores />
+
       {m?.photoEnabled && <Button asChild variant="hero" size="xl"><Link to="/cliente/foto"><ImagePlus />Enviar foto (+{m.photoPoints} pontos)</Link></Button>}
-      {m?.surveyEnabled && <SatisfactionCard companyId={m.companyId} userId={data.profile.id} points={m.surveyPoints} url={m.googleUrl} />}
+      {m?.surveyEnabled && <SatisfactionCard key={m.companyId} companyId={m.companyId} userId={data.profile.id} points={m.surveyPoints} url={m.googleUrl} />}
 
       <section>
         <h2 className="mb-3 text-lg font-extrabold text-foreground">Histórico recente</h2>

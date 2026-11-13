@@ -13,14 +13,14 @@ export const Route = createFileRoute("/empresa")({
     const info = await getSessionInfo();
     if (!info) throw redirect({ to: "/entrar" });
     if (info.role !== "dono" || !info.companyId) throw redirect({ to: homeFor(info.role) === "/empresa" ? "/cliente" : homeFor(info.role) });
-    const { data: c } = await supabase.from("companies").select("plan").eq("id", info.companyId).maybeSingle();
-    return { userId: info.userId, companyId: info.companyId, plan: c?.plan ?? "basic" };
+    const { data: c } = await supabase.from("companies").select("plan,name,logo_url,city").eq("id", info.companyId).maybeSingle();
+    return { userId: info.userId, companyId: info.companyId, plan: c?.plan ?? "basic", company: c ?? undefined };
   },
   component: Layout,
 });
 
 function Layout() {
-  const { companyId } = Route.useRouteContext();
+  const { companyId, company } = Route.useRouteContext();
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -37,6 +37,7 @@ function Layout() {
 
   return (
     <AppShell
+      company={company}
       area="Empresa"
       onSignOut={() => signOutAndLeave({ queryClient: qc, navigate })}
       tabs={[

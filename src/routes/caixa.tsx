@@ -13,13 +13,14 @@ export const Route = createFileRoute("/caixa")({
     const info = await getSessionInfo();
     if (!info) throw redirect({ to: "/entrar" });
     if (!isStaff(info.role) || !info.companyId) throw redirect({ to: homeFor(info.role) });
-    return { companyId: info.companyId };
+    const { data: company } = await supabase.from("companies").select("name,logo_url,city").eq("id", info.companyId).maybeSingle();
+    return { companyId: info.companyId, company: company ?? undefined };
   },
   component: Layout,
 });
 
 function Layout() {
-  const { companyId } = Route.useRouteContext();
+  const { companyId, company } = Route.useRouteContext();
   const qc = useQueryClient();
   const navigate = useNavigate();
   useEffect(() => {
@@ -32,6 +33,7 @@ function Layout() {
   }, [companyId, qc]);
   return (
     <AppShell
+      company={company}
       area="Caixa"
       onSignOut={() => signOutAndLeave({ queryClient: qc, navigate })}
       tabs={[

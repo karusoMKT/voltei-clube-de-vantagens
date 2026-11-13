@@ -41,6 +41,7 @@ export function slugTyping(value: string) {
 }
 
 export const companySchema = z.object({
+  city: z.string().trim().max(100, "Cidade muito longa.").default(""),
   name: z.string().trim().min(2, "Digite o nome da loja.").max(80, "Nome muito longo."),
   slug: z
     .string()

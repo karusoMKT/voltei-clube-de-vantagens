@@ -37,3 +37,6 @@ use the editor.
 - Monthly summaries use America/Sao_Paulo; member count is all current members, positive point transactions and redemption creations count in the month, and never-purchasers become inactive after their membership is older than the inactivity window.
 - Role areas: admin→/admin, dono→/empresa (owner-only management), funcionario and dono→/caixa (checkout + reward delivery only); reward/rate/summary RPCs check is_owner_of or is_admin, so cashiers stay out even via API.
 - Satisfaction rewards use a dedicated atomic RPC and unique customer/company response; all scores earn the same configured points, and Google invitations are independent of scores to avoid review gating.
+- CustomerWallet owns the selected membership across customer routes; all reward, history, photo and redemption reads are scoped to that company, with no cross-store balances.
+- Store discovery projects identity fields through a customer-authorized RPC; joining is idempotent and initializes only new memberships at zero points.
+- Company logos use admin-authorized, byte-validated uploads and signed read URLs so workspace public-bucket restrictions do not break authenticated displays.

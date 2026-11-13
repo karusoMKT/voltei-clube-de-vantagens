@@ -1,8 +1,8 @@
+import { useCustomerWallet } from "@/components/CustomerWallet";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
 import { Loading } from "@/components/Empty";
-import { clienteQuery, shortCode } from "@/lib/cliente-data";
+import { shortCode } from "@/lib/cliente-data";
 
 export const Route = createFileRoute("/cliente/qr")({
   head: () => ({
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/cliente/qr")({
 });
 
 function MeuQr() {
-  const { data, isPending } = useQuery(clienteQuery);
+  const { data, isPending } = useCustomerWallet();
   if (isPending || !data) return <Loading />;
   const token = data.profile.qr_token;
   return (

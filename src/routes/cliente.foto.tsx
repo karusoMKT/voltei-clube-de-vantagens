@@ -1,3 +1,4 @@
+import { useCustomerWallet } from "@/components/CustomerWallet";
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -5,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ImagePlus, Upload, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loading } from "@/components/Empty";
-import { clienteQuery, photosQuery } from "@/lib/cliente-data";
+import { photosQuery } from "@/lib/cliente-data";
 import { preparePhoto } from "@/lib/photo-image";
 import { uploadPhoto } from "@/lib/photo.functions";
 
@@ -21,8 +22,8 @@ export const Route = createFileRoute("/cliente/foto")({
 });
 
 function Foto() {
-  const { data, isPending } = useQuery(clienteQuery);
-  const { data: photos } = useQuery(photosQuery);
+  const { data, isPending, companyId } = useCustomerWallet();
+  const { data: photos } = useQuery(photosQuery(companyId));
   const qc = useQueryClient();
   const send = useServerFn(uploadPhoto);
   const input = useRef<HTMLInputElement>(null);
@@ -36,6 +37,7 @@ function Foto() {
     setPreview(url);
     return () => URL.revokeObjectURL(url);
   }, [file]);
+  useEffect(() => { setFile(null); setError(null); }, [companyId]);
   const upload = useMutation({
     mutationFn: async () => {
       if (!file || !data?.membership) throw new Error("Escolha seu print para enviar.");
@@ -48,7 +50,9 @@ function Foto() {
     onSuccess: () => { setFile(null); setError(null); qc.invalidateQueries({ queryKey: ["cliente"] }); },
     onError: (e) => setError(e.message),
   });
+  useEffect(() => { upload.reset(); }, [companyId]);
   if (isPending || !data) return <Loading />;
+  if (!data.membership?.photoEnabled) return <div className="px-5 pt-5">Envio de foto indisponível nesta loja.</div>;
   const pending = photos?.some((p) => p.status === "pendente");
   return <div className="space-y-5 px-5 pt-5">
     <Button asChild variant="ghost" className="h-12 px-0 text-primary"><Link to="/cliente"><ArrowLeft /> Início</Link></Button>

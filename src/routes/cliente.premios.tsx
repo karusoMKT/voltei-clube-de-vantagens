@@ -1,3 +1,4 @@
+import { useCustomerWallet } from "@/components/CustomerWallet";
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -6,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Empty, Loading } from "@/components/Empty";
-import { clienteQuery, resgatesQuery } from "@/lib/cliente-data";
+import { resgatesQuery } from "@/lib/cliente-data";
 
 export const Route = createFileRoute("/cliente/premios")({
   head: () => ({
@@ -24,8 +25,8 @@ export const Route = createFileRoute("/cliente/premios")({
 
 function Premios() {
   const qc = useQueryClient();
-  const { data, isPending } = useQuery(clienteQuery);
-  const { data: resgates } = useQuery(resgatesQuery);
+  const { data, isPending, companyId } = useCustomerWallet();
+  const { data: resgates } = useQuery(resgatesQuery(companyId));
   const [codigo, setCodigo] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
 

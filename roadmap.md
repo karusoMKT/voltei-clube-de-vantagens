@@ -30,6 +30,13 @@
 - [x] Configuração do dono, notas 1–5 do cliente e convite opcional ao Google sem seleção por nota.
 - [x] Executar suíte e verificar entrada e proteção da página em computador/celular. Fluxo autenticado não verificado: Supabase externo sem sessão disponível; testes de acesso reais são opt-in.
 
+## Multi-loja e logos
+- [ ] Adicionar cidade, logos, descoberta segura e participação com zero pontos.
+- [ ] Cadastro/edição de empresas com logo e cidade; cabeçalhos com identidade da loja.
+- [ ] Carteira com seleção de loja, prêmios, fotos e extrato separados; vitrine de lojas ativas.
+- [ ] Testar suíte e fluxos disponíveis.
+- [ ] Liberar bucket público company-logos: bloqueado pela configuração do workspace.
+
 ## Auditoria Advisor Supabase
 - [x] Inventariar 20 avisos atuais, RLS, funções, permissões e armazenamento.
 - [x] Mostrar SQL e aplicar bloqueio de helper interno e permissões mínimas da pesquisa, preservando RPCs autorizadas.

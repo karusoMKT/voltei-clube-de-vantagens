@@ -1,9 +1,12 @@
+import { CompanyLogo } from "@/components/CompanyLogo";
+import { CompanyLogoInput } from "@/components/CompanyLogoInput";
+import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, UserPlus, MessageCircle } from "lucide-react";
+import { Plus, UserPlus, MessageCircle, Pencil } from "lucide-react";
 import { AreaHeader, PageTitle } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +17,7 @@ import { signOutAndLeave } from "@/lib/logout";
 import { getSessionInfo, homeFor } from "@/lib/session";
 import { maskPhone, accessWhatsappLink } from "@/lib/cadastro";
 import { PLANS, type PlanId, planLabel, mrr, brl, companySchema, ownerSchema, slugTyping } from "@/lib/plans";
-import { listCompanies, createCompany, createOwner } from "@/lib/admin.functions";
+import { listCompanies, createCompany, createOwner, updateCompany, uploadCompanyLogo } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
@@ -36,13 +39,14 @@ export const Route = createFileRoute("/admin")({
   component: Admin,
 });
 
-type Company = { id: string; name: string; slug: string; plan: string; active: boolean; monthly_fee: number; hasOwner: boolean };
+type Company = { id: string; name: string; slug: string; plan: string; active: boolean; monthly_fee: number; hasOwner: boolean; logo_url: string | null; city: string | null };
 
 function Admin() {
   const fetchCompanies = useServerFn(listCompanies);
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data, isPending, error } = useQuery({ queryKey: ["admin", "companies"], queryFn: () => fetchCompanies() });
+  const [editing, setEditing] = useState<Company | null>(null);
   const [newOpen, setNewOpen] = useState(false);
   const [ownerFor, setOwnerFor] = useState<Company | null>(null);
 
@@ -68,7 +72,7 @@ function Admin() {
           {!data.length ? <Empty>Nenhuma empresa ainda.</Empty> : <ul className="space-y-3">{data.map((c) => (
             <li key={c.id} className="rounded-3xl border border-border bg-card p-4">
               <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0"><h3 className="break-words text-lg font-extrabold">{c.name}</h3><p className="text-sm text-muted-foreground">/{c.slug}</p></div>
+                <CompanyLogo name={c.name} url={c.logo_url} /><div className="min-w-0 flex-1"><h3 className="break-words text-lg font-extrabold">{c.name}</h3><p className="text-sm text-muted-foreground">/{c.slug}</p><p className="text-sm text-muted-foreground">{c.city}</p></div>
                 <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-extrabold ${c.active ? "bg-accent text-primary" : "bg-muted text-muted-foreground"}`}>{c.active ? "Ativa" : "Inativa"}</span>
               </div>
               <div className="mt-3 flex items-center justify-between text-sm"><span className="rounded-full bg-secondary px-3 py-1 font-bold">{planLabel(c.plan)}</span><span className="font-extrabold">{brl(c.monthly_fee)}/mês</span></div>
@@ -78,6 +82,7 @@ function Admin() {
           ))}</ul>}
         </>}
       </div>
+      {editing && <EditarEmpresa key={editing.id} company={editing} onClose={() => setEditing(null)} />}
       <NovaEmpresa open={newOpen} onOpenChange={setNewOpen} />
       <CriarDono company={ownerFor} onClose={() => setOwnerFor(null)} />
     </div>
@@ -92,7 +97,10 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
   const qc = useQueryClient();
   const save = useServerFn(createCompany);
   const saveOwner = useServerFn(createOwner);
-  const blank = { name: "", slug: "", plan: "basic" as PlanId, monthlyFee: String(PLANS.basic.fee), fullName: "", phone: "", pin: "" };
+  const uploadLogo = useServerFn(uploadCompanyLogo);
+  const update = useServerFn(updateCompany);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const blank = { city: "", name: "", slug: "", plan: "basic" as PlanId, monthlyFee: String(PLANS.basic.fee), fullName: "", phone: "", pin: "" };
   const [form, setForm] = useState(blank);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [link, setLink] = useState<string | null>(null);
@@ -100,6 +108,11 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
     mutationFn: async (input: { company: unknown; owner: { fullName: string; phone: string; pin: string } }) => {
       const c = await save({ data: input.company });
       if (!c.ok || !c.id) return { ok: false, message: c.message };
+      try {
+        let logoUrl: string | null = null;
+        if (logoFile) { const payload = new FormData(); payload.set("companyId", c.id); payload.set("file", logoFile); logoUrl = await uploadLogo({ data: payload }); }
+        await update({ data: { ...companySchema.parse(input.company), id: c.id, active: true, logoUrl } });
+      } catch (e) { toast.error(`Loja criada, mas cidade/logo não foram salvas: ${e instanceof Error ? e.message : "Tente editar a empresa."}`); }
       const o = await saveOwner({ data: { ...input.owner, companyId: c.id } });
       return o.ok ? { ok: true, message: "Loja e acesso do dono criados!" } : { ok: false, message: `Loja criada, mas o acesso do dono falhou: ${o.message}` };
     },
@@ -111,10 +124,10 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
     },
     onError: () => toast.error("Não conseguimos criar a empresa."),
   });
-  function close(o: boolean) { if (!o) { setForm(blank); setLink(null); setErrors({}); } onOpenChange(o); }
+  function close(o: boolean) { if (!o) { setForm(blank); setLogoFile(null); setLink(null); setErrors({}); } onOpenChange(o); }
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    const c = companySchema.safeParse({ name: form.name, slug: form.slug, plan: form.plan, monthlyFee: form.monthlyFee.replace(",", ".") });
+    const c = companySchema.safeParse({ city: form.city, name: form.name, slug: form.slug, plan: form.plan, monthlyFee: form.monthlyFee.replace(",", ".") });
     const o = ownerSchema.safeParse({ fullName: form.fullName, phone: form.phone, pin: form.pin, companyId: "00000000-0000-4000-8000-000000000000" });
     const issues = [...(c.success ? [] : c.error.issues), ...(o.success ? [] : o.error.issues)];
     if (!c.success || issues.length) { setErrors(Object.fromEntries(issues.map((i) => [String(i.path[0]), i.message]))); return; }
@@ -129,12 +142,14 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
     <form onSubmit={submit} className="space-y-4">
       <Field label="Nome da loja" error={errors["name"]}><Input className="h-12 rounded-2xl" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
       <Field label="Endereço (slug)" error={errors["slug"]}><Input className="h-12 rounded-2xl" placeholder="minha-loja" value={form.slug} onChange={(e) => setForm({ ...form, slug: slugTyping(e.target.value) })} /></Field>
+      <CompanyLogoInput file={logoFile} onChange={setLogoFile} />
+      <Field label="Cidade" error={errors["city"]}><Input className="h-12 rounded-2xl" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
       <Field label="Plano">
         <div className="grid gap-2">{(Object.keys(PLANS) as PlanId[]).map((p) => (
-          <button type="button" key={p} onClick={() => setForm({ ...form, plan: p, monthlyFee: String(PLANS[p].fee) })}
-            className={`rounded-2xl border p-3 text-left ${form.plan === p ? "border-primary bg-accent" : "border-border bg-card"}`}>
+          <Button variant="outline" type="button" key={p} onClick={() => setForm({ ...form, plan: p, monthlyFee: String(PLANS[p].fee) })}
+            className={`h-auto flex-col items-start whitespace-normal rounded-2xl border p-3 text-left ${form.plan === p ? "border-primary bg-accent" : "border-border bg-card"}`}>
             <span className="font-extrabold">{PLANS[p].label} · {brl(PLANS[p].fee)}</span><span className="block text-xs text-muted-foreground">{PLANS[p].features}</span>
-          </button>))}</div>
+          </Button>))}</div>
       </Field>
       <Field label="Mensalidade (R$)" error={errors["monthlyFee"]}><Input className="h-12 rounded-2xl" inputMode="decimal" value={form.monthlyFee} onChange={(e) => setForm({ ...form, monthlyFee: e.target.value })} /></Field>
       <p className="pt-2 font-extrabold">Dono da loja</p>
@@ -173,4 +188,32 @@ function CriarDono({ company, onClose }: { company: Company | null; onClose: () 
       <Field label="PIN provisório (6 números)" error={errors["pin"]}><Input className="h-12 rounded-2xl" inputMode="numeric" maxLength={6} value={form.pin} onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "").slice(0, 6) })} /></Field>
       <Button type="submit" size="xl" className="w-full rounded-2xl" disabled={m.isPending}>{m.isPending ? "Criando..." : "Criar acesso"}</Button>
     </form></DialogContent></Dialog>;
+}
+
+function EditarEmpresa({ company, onClose }: { company: Company; onClose: () => void }) {
+  const qc = useQueryClient();
+  const save = useServerFn(updateCompany);
+  const upload = useServerFn(uploadCompanyLogo);
+  const [file, setFile] = useState<File | null>(null);
+  const [form, setForm] = useState({ name: company.name, slug: company.slug, city: company.city ?? "", plan: company.plan as PlanId, monthlyFee: String(company.monthly_fee), active: company.active });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const mutation = useMutation({ mutationFn: async () => {
+    const parsed = companySchema.parse({ ...form, monthlyFee: form.monthlyFee.replace(",", ".") });
+    let logoUrl = company.logo_url;
+    if (file) { const payload = new FormData(); payload.set("companyId", company.id); payload.set("file", file); logoUrl = await upload({ data: payload }); }
+    await save({ data: { ...parsed, id: company.id, active: form.active, logoUrl } });
+  }, onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin"] }); qc.invalidateQueries({ queryKey: ["cliente"] }); toast.success("Empresa atualizada!"); onClose(); }, onError: (e) => toast.error(e.message) });
+  function submit(e: React.FormEvent) { e.preventDefault(); const parsed = companySchema.safeParse({ ...form, monthlyFee: form.monthlyFee.replace(",", ".") }); if (!parsed.success) { setErrors(Object.fromEntries(parsed.error.issues.map((i) => [String(i.path[0]), i.message]))); return; } setErrors({}); mutation.mutate(); }
+  return <Dialog open onOpenChange={(open) => { if (!open && !mutation.isPending) onClose(); }}><DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl"><DialogHeader><DialogTitle>Editar empresa</DialogTitle></DialogHeader>
+    <form onSubmit={submit} className="space-y-4">
+      <CompanyLogoInput file={file} onChange={setFile} url={company.logo_url} />
+      <Field label="Nome da loja" error={errors["name"]}><Input aria-label="Nome da loja" className="h-12 rounded-2xl" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
+      <Field label="Endereço (slug)" error={errors["slug"]}><Input className="h-12 rounded-2xl" value={form.slug} onChange={(e) => setForm({ ...form, slug: slugTyping(e.target.value) })} /></Field>
+      <Field label="Cidade" error={errors["city"]}><Input aria-label="Cidade" className="h-12 rounded-2xl" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
+      <Field label="Plano"><select className="h-12 w-full rounded-2xl border border-border bg-card px-3" value={form.plan} onChange={(e) => setForm({ ...form, plan: e.target.value as PlanId })}>{(Object.keys(PLANS) as PlanId[]).map((p) => <option key={p} value={p}>{PLANS[p].label}</option>)}</select></Field>
+      <Field label="Mensalidade (R$)" error={errors["monthlyFee"]}><Input className="h-12 rounded-2xl" inputMode="decimal" value={form.monthlyFee} onChange={(e) => setForm({ ...form, monthlyFee: e.target.value })} /></Field>
+      <div className="flex min-h-12 items-center justify-between"><Label htmlFor="company-active">Empresa ativa</Label><Switch id="company-active" checked={form.active} onCheckedChange={(active) => setForm({ ...form, active })} /></div>
+      <Button type="submit" size="xl" className="w-full rounded-2xl" disabled={mutation.isPending}>{mutation.isPending ? "Salvando…" : "Salvar alterações"}</Button>
+    </form>
+  </DialogContent></Dialog>;
 }

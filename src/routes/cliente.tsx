@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Home, Gift, QrCode, User } from "lucide-react";
+import { CustomerWallet, WalletSelector } from "@/components/CustomerWallet";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { signOutAndLeave } from "@/lib/logout";
@@ -40,8 +41,9 @@ function Layout() {
   }, [userId, qc]);
 
   return (
-    <AppShell
+    <CustomerWallet><AppShell
       area="Cliente"
+      beforeContent={<WalletSelector />}
       onSignOut={() => signOutAndLeave({ queryClient: qc, navigate })}
       tabs={[
         { to: "/cliente", label: "Início", icon: Home, exact: true },
@@ -49,6 +51,6 @@ function Layout() {
         { to: "/cliente/qr", label: "Meu QR", icon: QrCode },
         { to: "/cliente/perfil", label: "Perfil", icon: User },
       ]}
-    />
+    /></CustomerWallet>
   );
 }
