@@ -23,4 +23,17 @@ describe("reward inputs and contact", () => {
     expect(decodeURIComponent(link?.split("text=")[1] ?? "")).toBe("Oi, Ana! Sentimos sua falta na Sorveteria Modelo. Passe aqui, você tem 120 pontos esperando.");
     expect(whatsappReturn("Ana", "Loja", 120, "javascript:alert(1)")).toBeNull();
   });
+});import { suggestPoints, rewardLimitReached } from "@/lib/company-panels";
+describe("reward suggestion and basic limit", () => {
+  it("suggests points for a 5% return", () => {
+    expect(suggestPoints(5, 1)).toBe(100);
+    expect(suggestPoints(2, 2)).toBe(80);
+    expect(rewardReturn(5, suggestPoints(5, 1)!, 1)?.ratio).toBe(0.05);
+  });
+  it("gives no suggestion without a cost", () => { expect(suggestPoints(0, 1)).toBeNull(); });
+  it("basic plan stops at 3 active rewards", () => {
+    expect(rewardLimitReached("basic", 2)).toBe(false);
+    expect(rewardLimitReached("basic", 3)).toBe(true);
+    expect(rewardLimitReached("pro", 10)).toBe(false);
+  });
 });

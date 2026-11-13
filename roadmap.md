@@ -21,3 +21,6 @@
 - [x] Testar: 37 testes aprovados; entrada, Sair e botão Voltar verificados no app.
 - [x] Botão Sair também no cabeçalho de /empresa, /cliente e /admin, com o mesmo padrão visual.
 - [x] Testar nas três áreas: entrada, Sair e botão Voltar verificados; 37 testes aprovados.
+
+## Prêmios: limite Básico, sugestão e edição
+- [x] Limite 3 ativos no Básico, sugestão 5%, editar prêmio

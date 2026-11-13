@@ -393,6 +393,15 @@ export type Database = {
         }
         Returns: string
       }
+      editar_premio: {
+        Args: {
+          _cost_points: number
+          _cost_reais: number
+          _name: string
+          _reward_id: string
+        }
+        Returns: undefined
+      }
       entregar_resgate: { Args: { _redemption_id: string }; Returns: undefined }
       enviar_foto: {
         Args: { _company_id: string; _image_path: string }

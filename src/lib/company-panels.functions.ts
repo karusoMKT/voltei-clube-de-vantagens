@@ -30,6 +30,13 @@ export const createCompanyReward = createServerFn({ method: "POST" })
     const { error } = await context.supabase.rpc("criar_premio", { _company_id: data.companyId, _name: data.name, _cost_reais: data.costReais, _cost_points: data.costPoints });
     return error ? { ok: false, message: error.message } : { ok: true, message: "Prêmio criado!" };
   });
+export const updateCompanyReward = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => rewardSchema.extend({ rewardId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.rpc("editar_premio", { _reward_id: data.rewardId, _name: data.name, _cost_reais: data.costReais, _cost_points: data.costPoints });
+    return error ? { ok: false, message: error.message } : { ok: true, message: "Prêmio atualizado!" };
+  });
 export const toggleCompanyReward = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ rewardId: z.string().uuid(), active: z.boolean() }).parse(input))
