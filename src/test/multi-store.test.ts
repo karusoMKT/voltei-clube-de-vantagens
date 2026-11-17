@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeMembership, companyRows } from "@/lib/multi-store";
+import { activeMembership, companyRows, discoverableStores } from "@/lib/multi-store";
 
 describe("carteira multi-loja", () => {
   const memberships = [{ companyId: "a", balance: 120 }, { companyId: "b", balance: 0 }];
@@ -13,5 +13,18 @@ describe("carteira multi-loja", () => {
   it("loja selecionada removida usa uma participação válida", () => {
     expect(activeMembership(memberships, "removida")?.companyId).toBe("a");
     expect(activeMembership([], "a")).toBeNull();
+  });
+});
+
+describe("vitrine de descoberta", () => {
+  const stores = [{ id: "a" }, { id: "b" }, { id: "c" }];
+  it("esconde lojas em que o cliente já participa", () => {
+    expect(discoverableStores(stores, [{ companyId: "a" }, { companyId: "c" }])).toEqual([{ id: "b" }]);
+  });
+  it("sem participações, mostra todas as lojas", () => {
+    expect(discoverableStores(stores, [])).toEqual(stores);
+  });
+  it("participando de todas, a vitrine fica vazia", () => {
+    expect(discoverableStores(stores, [{ companyId: "a" }, { companyId: "b" }, { companyId: "c" }])).toEqual([]);
   });
 });
