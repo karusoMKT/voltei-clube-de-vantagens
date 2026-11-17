@@ -6,18 +6,19 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, UserPlus, MessageCircle, Pencil } from "lucide-react";
+import { Plus, UserPlus, MessageCircle, Pencil, Trash2 } from "lucide-react";
 import { AreaHeader, PageTitle } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loading, Empty } from "@/components/Empty";
 import { signOutAndLeave } from "@/lib/logout";
 import { getSessionInfo, homeFor } from "@/lib/session";
 import { maskPhone, accessWhatsappLink } from "@/lib/cadastro";
 import { PLANS, type PlanId, planLabel, mrr, brl, companySchema, ownerSchema, slugTyping } from "@/lib/plans";
-import { listCompanies, createCompany, createOwner, updateCompany, uploadCompanyLogo } from "@/lib/admin.functions";
+import { listCompanies, createCompany, createOwner, updateCompany, uploadCompanyLogo, deleteCompany } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
@@ -49,6 +50,13 @@ function Admin() {
   const [editing, setEditing] = useState<Company | null>(null);
   const [newOpen, setNewOpen] = useState(false);
   const [ownerFor, setOwnerFor] = useState<Company | null>(null);
+  const [removing, setRemoving] = useState<Company | null>(null);
+  const removeFn = useServerFn(deleteCompany);
+  const removal = useMutation({
+    mutationFn: (id: string) => removeFn({ data: { id } }),
+    onSuccess: () => { toast.success("Empresa excluída."); setRemoving(null); qc.invalidateQueries({ queryKey: ["admin", "companies"] }); },
+    onError: (e: Error) => toast.error(e.message || "Não conseguimos excluir agora."),
+  });
 
   return (
     <div className="mx-auto min-h-screen max-w-md pb-10">
@@ -76,6 +84,10 @@ function Admin() {
                 <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-extrabold ${c.active ? "bg-accent text-primary" : "bg-muted text-muted-foreground"}`}>{c.active ? "Ativa" : "Inativa"}</span>
               </div>
               <div className="mt-3 flex items-center justify-between text-sm"><span className="rounded-full bg-secondary px-3 py-1 font-bold">{planLabel(c.plan)}</span><span className="font-extrabold">{brl(c.monthly_fee)}/mês</span></div>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <Button variant="outline" size="xl" className="rounded-2xl" onClick={() => setEditing(c)} aria-label={`Editar ${c.name}`}><Pencil />Editar</Button>
+                <Button variant="outline" size="xl" className="rounded-2xl border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setRemoving(c)} aria-label={`Excluir ${c.name}`}><Trash2 />Excluir</Button>
+              </div>
               {c.hasOwner ? <p className="mt-3 text-sm text-muted-foreground">Dono já tem acesso.</p>
                 : <Button variant="secondary" size="xl" className="mt-3 w-full rounded-2xl" onClick={() => setOwnerFor(c)}><UserPlus />Criar acesso do dono</Button>}
             </li>
@@ -83,6 +95,18 @@ function Admin() {
         </>}
       </div>
       {editing && <EditarEmpresa key={editing.id} company={editing} onClose={() => setEditing(null)} />}
+      <AlertDialog open={!!removing} onOpenChange={(o) => { if (!o && !removal.isPending) setRemoving(null); }}>
+        <AlertDialogContent className="rounded-3xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir {removing?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>Isso apaga a loja, seus prêmios, membros, pontos e resgates, e tira o acesso do dono e dos caixas. Não dá para desfazer.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="min-h-12 rounded-2xl" disabled={removal.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction className="min-h-12 rounded-2xl bg-destructive text-destructive-foreground hover:bg-destructive/90" disabled={removal.isPending} onClick={(e) => { e.preventDefault(); if (removing) removal.mutate(removing.id); }}>{removal.isPending ? "Excluindo..." : "Excluir empresa"}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <NovaEmpresa open={newOpen} onOpenChange={setNewOpen} />
       <CriarDono company={ownerFor} onClose={() => setOwnerFor(null)} />
     </div>

@@ -65,6 +65,16 @@ export const updateCompany = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const deleteCompany = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.rpc("admin_excluir_empresa" as never, { _id: data.id } as never);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const uploadCompanyLogo = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => {
     if (!(input instanceof FormData)) throw new Error("Escolha uma logo.");

@@ -433,6 +433,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_excluir_empresa: { Args: { _id: string }; Returns: undefined }
       aprovar_foto: { Args: { _submission_id: string }; Returns: number }
       ativar_premio: {
         Args: { _active: boolean; _reward_id: string }
