@@ -28,7 +28,11 @@ export const createCompany = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => companySchema.parse(input))
   .handler(async ({ data, context }) => {
     const { data: id, error } = await context.supabase.rpc("admin_criar_empresa" as never, { _name: data.name, _slug: data.slug, _plan: data.plan, _monthly_fee: data.monthlyFee } as never);
-    return error ? { ok: false as const, message: error.message, id: null } : { ok: true as const, message: "Empresa criada!", id: id as unknown as string };
+    if (error) {
+      const msg = /duplicate|unique/i.test(error.message) ? "Esse endereço (slug) já está em uso. Escolha outro." : /admin/i.test(error.message) ? "Somente o admin pode criar empresas." : `Não conseguimos criar a empresa: ${error.message}`;
+      return { ok: false as const, message: msg, id: null };
+    }
+    return { ok: true as const, message: "Empresa criada!", id: id as unknown as string };
   });
 
 export const createOwner = createServerFn({ method: "POST" })
@@ -44,13 +48,16 @@ export const createOwner = createServerFn({ method: "POST" })
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
       email: phoneToEmail(data.phone), password: data.pin, email_confirm: true, user_metadata: { full_name: data.fullName },
     });
-    if (error || !created.user) return { ok: false, message: "Não conseguimos criar o acesso agora." };
+    if (error || !created.user) {
+      const dup = /already|registered|exists/i.test(error?.message ?? "");
+      return { ok: false, message: dup ? "Esse WhatsApp já tem conta no Voltei." : `Não conseguimos criar o acesso: ${error?.message ?? "erro desconhecido"}` };
+    }
     const id = created.user.id;
-    const { error: e1 } = await supabaseAdmin.from("profiles").update({ full_name: data.fullName, phone: data.phone }).eq("id", id);
-    const { error: e2 } = await supabaseAdmin.from("user_roles").upsert({ user_id: id, role: "dono", company_id: data.companyId }, { onConflict: "user_id" });
+    const { error: e1 } = await supabaseAdmin.from("profiles").upsert({ id, full_name: data.fullName, phone: data.phone }, { onConflict: "id" });
+    const { error: e2 } = e1 ? { error: null } : await supabaseAdmin.from("user_roles").upsert({ user_id: id, role: "dono", company_id: data.companyId }, { onConflict: "user_id" });
     if (e1 || e2) {
       await supabaseAdmin.auth.admin.deleteUser(id);
-      return { ok: false, message: "Não conseguimos criar o acesso agora." };
+      return { ok: false, message: `Não conseguimos salvar o ${e1 ? "perfil" : "cargo"} do dono: ${(e1 ?? e2)!.message}` };
     }
     return { ok: true, message: "Acesso do dono criado!" };
   });

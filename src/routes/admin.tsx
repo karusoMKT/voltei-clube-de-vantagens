@@ -124,6 +124,7 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
   const saveOwner = useServerFn(createOwner);
   const uploadLogo = useServerFn(uploadCompanyLogo);
   const update = useServerFn(updateCompany);
+  const remove = useServerFn(deleteCompany);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const blank = { city: "", name: "", slug: "", plan: "basic" as PlanId, monthlyFee: String(PLANS.basic.fee), fullName: "", phone: "", pin: "" };
   const [form, setForm] = useState(blank);
@@ -139,7 +140,9 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
         await update({ data: { ...companySchema.parse(input.company), id: c.id, active: true, logoUrl } });
       } catch (e) { toast.error(`Loja criada, mas cidade/logo não foram salvas: ${e instanceof Error ? e.message : "Tente editar a empresa."}`); }
       const o = await saveOwner({ data: { ...input.owner, companyId: c.id } });
-      return o.ok ? { ok: true, message: "Loja e acesso do dono criados!" } : { ok: false, message: `Loja criada, mas o acesso do dono falhou: ${o.message}` };
+      if (o.ok) return { ok: true, message: "Loja e acesso do dono criados!" };
+      try { await remove({ data: { id: c.id } }); } catch { return { ok: false, message: `${o.message} A loja ficou criada sem dono; use "Criar acesso do dono" ou exclua-a.` }; }
+      return { ok: false, message: `${o.message} Nada foi salvo; corrija e tente de novo.` };
     },
     onSuccess: (r) => {
       qc.invalidateQueries({ queryKey: ["admin"] });
@@ -147,7 +150,7 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
       toast.success(r.message);
       setAccess({ name: form.fullName, phone: form.phone, company: form.name, pin: form.pin, link: accessWhatsappLink(form.phone, form.fullName, form.name, form.pin, window.location.origin) });
     },
-    onError: () => toast.error("Não conseguimos criar a empresa."),
+    onError: (e: Error) => toast.error(e.message ? `Não conseguimos criar a empresa: ${e.message}` : "Não conseguimos criar a empresa."),
   });
   function close(o: boolean) { if (!o) { setForm(blank); setLogoFile(null); setAccess(null); setErrors({}); } onOpenChange(o); }
   function submit(e: React.FormEvent) {
@@ -196,7 +199,7 @@ function CriarDono({ company, onClose }: { company: Company | null; onClose: () 
       qc.invalidateQueries({ queryKey: ["admin"] });
       setAccess({ name: form.fullName, phone: form.phone, company: company?.name ?? "", pin: form.pin, link: accessWhatsappLink(form.phone, form.fullName, company?.name ?? "", form.pin, window.location.origin) });
     },
-    onError: () => toast.error("Não conseguimos criar o acesso."),
+    onError: (e: Error) => toast.error(e.message ? `Não conseguimos criar o acesso: ${e.message}` : "Não conseguimos criar o acesso."),
   });
   function submit(e: React.FormEvent) {
     e.preventDefault();
