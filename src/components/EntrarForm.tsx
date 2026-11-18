@@ -1,3 +1,4 @@
+import logo from "@/assets/voltei-logo.png.asset.json";
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -103,7 +104,7 @@ export function EntrarForm({ slug, companyName }: { slug?: string | undefined; c
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col px-6 py-8">
-      <p className="text-xl font-extrabold text-primary">Voltei</p>
+      <img src={logo.url} alt="Voltei" className="h-10 w-auto self-start" />
       {companyName && (
         <span className="mt-4 self-start rounded-full bg-cream px-3 py-1 text-sm font-bold text-foreground">
           {companyName}
