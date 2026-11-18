@@ -1,20 +1,23 @@
 import { useState } from "react";
-import { Store } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+function initials(name: string) {
+  return name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") || "?";
+}
+
 export function CompanyLogo({ name, url, large = false }: { name: string; url?: string | null | undefined; large?: boolean }) {
   const [failed, setFailed] = useState<string | null>(null);
-  const marker = "/storage/v1/object/public/company-logos/";
-  const path = url?.includes(marker) ? url.split(marker)[1] : undefined;
-  // Signed URLs also work while the workspace blocks public buckets.
-  const { data: signed } = useQuery({ queryKey: ["company-logo", url], enabled: !!path, staleTime: 45 * 60 * 1000, queryFn: async () => {
-    if (!path) return null;
-    const { data } = await supabase.storage.from("company-logos").createSignedUrl(path, 3600);
+  // Private bucket: always sign the stored path (never rely on public URLs).
+  const match = url?.match(/\/company-logos\/(.+?)(\?|$)/);
+  const path = match?.[1];
+  const local = url?.startsWith("blob:") ? url : null;
+  const { data: signed } = useQuery({ queryKey: ["company-logo", path], enabled: !!path, staleTime: 45 * 60 * 1000, queryFn: async () => {
+    const { data } = await supabase.storage.from("company-logos").createSignedUrl(path!, 3600);
     return data?.signedUrl ?? null;
   } });
-  const src = signed ?? url;
-  return <span className={`flex shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-card text-primary ${large ? "h-16 w-16" : "h-12 w-12"}`}>
-    {src && failed !== src ? <img src={src} alt={`Logo de ${name}`} className="h-full w-full object-contain" onError={() => setFailed(src)} /> : <Store className={large ? "h-8 w-8" : "h-6 w-6"} />}
+  const src = local ?? signed ?? null;
+  return <span className={`flex shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-secondary font-extrabold text-primary ${large ? "h-16 w-16 text-xl" : "h-12 w-12 text-base"}`}>
+    {src && failed !== src ? <img src={src} alt={`Logo de ${name}`} className="h-full w-full bg-card object-contain" onError={() => setFailed(src)} /> : <span aria-label={`Logo de ${name}`}>{initials(name)}</span>}
   </span>;
 }

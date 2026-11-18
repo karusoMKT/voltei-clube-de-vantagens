@@ -1,4 +1,3 @@
-import logo from "@/assets/voltei-logo.png.asset.json";
 import { Link, Outlet } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { CompanyLogo } from "@/components/CompanyLogo";
@@ -21,7 +20,7 @@ export function PageTitle({ title }: { title: string }) {
 export function AreaHeader({ area, onSignOut }: { area: string; onSignOut?: (() => void) | undefined }) {
   return (
     <header className="flex items-center justify-between gap-2 px-5 pt-5">
-      <Link to="/" aria-label="Voltei"><img src={logo.url} alt="Voltei" className="h-8 w-auto" /></Link>
+      <Link to="/" aria-label="Voltei"><img src="/voltei-logo.png" alt="Voltei" className="h-8 w-auto" /></Link>
       <div className="flex items-center gap-2">
         <span className="rounded-full bg-secondary px-3 py-1 text-sm font-bold text-secondary-foreground">{area}</span>
         {(area === "Empresa" || area === "Caixa" || area === "Admin") && <ChangePinDialog />}
