@@ -47,6 +47,8 @@
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
   --color-cream: var(--cream);
+  --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-foreground: var(--whatsapp-foreground);
   --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -80,6 +82,8 @@
   --accent: oklch(0.82 0.16 75);
   --accent-foreground: oklch(0.285 0.068 260);
   --cream: oklch(0.96 0.04 85);
+  --whatsapp: oklch(0.761 0.2015 149.74);
+  --whatsapp-foreground: oklch(0.285 0.068 260);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.925 0.022 257);

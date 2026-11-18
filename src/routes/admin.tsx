@@ -6,7 +6,7 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, UserPlus, MessageCircle, Pencil, Trash2 } from "lucide-react";
+import { Plus, UserPlus, Pencil, Trash2 } from "lucide-react";
 import { AreaHeader, PageTitle } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import { Loading, Empty } from "@/components/Empty";
 import { signOutAndLeave } from "@/lib/logout";
 import { getSessionInfo, homeFor } from "@/lib/session";
 import { maskPhone, accessWhatsappLink } from "@/lib/cadastro";
+import { AccessSuccess, type AccessData } from "@/components/AccessSuccess";
 import { PLANS, type PlanId, planLabel, mrr, brl, companySchema, ownerSchema, slugTyping } from "@/lib/plans";
 import { listCompanies, createCompany, createOwner, updateCompany, uploadCompanyLogo, deleteCompany } from "@/lib/admin.functions";
 
@@ -127,7 +128,7 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
   const blank = { city: "", name: "", slug: "", plan: "basic" as PlanId, monthlyFee: String(PLANS.basic.fee), fullName: "", phone: "", pin: "" };
   const [form, setForm] = useState(blank);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [link, setLink] = useState<string | null>(null);
+  const [access, setAccess] = useState<AccessData | null>(null);
   const m = useMutation({
     mutationFn: async (input: { company: unknown; owner: { fullName: string; phone: string; pin: string } }) => {
       const c = await save({ data: input.company });
@@ -144,11 +145,11 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
       qc.invalidateQueries({ queryKey: ["admin"] });
       if (!r.ok) { toast.error(r.message); return; }
       toast.success(r.message);
-      setLink(accessWhatsappLink(form.phone, form.fullName, form.name, form.pin, window.location.origin));
+      setAccess({ name: form.fullName, phone: form.phone, company: form.name, pin: form.pin, link: accessWhatsappLink(form.phone, form.fullName, form.name, form.pin, window.location.origin) });
     },
     onError: () => toast.error("Não conseguimos criar a empresa."),
   });
-  function close(o: boolean) { if (!o) { setForm(blank); setLogoFile(null); setLink(null); setErrors({}); } onOpenChange(o); }
+  function close(o: boolean) { if (!o) { setForm(blank); setLogoFile(null); setAccess(null); setErrors({}); } onOpenChange(o); }
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const c = companySchema.safeParse({ city: form.city, name: form.name, slug: form.slug, plan: form.plan, monthlyFee: form.monthlyFee.replace(",", ".") });
@@ -158,11 +159,7 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
     setErrors({}); m.mutate({ company: c.data, owner: { fullName: form.fullName, phone: form.phone, pin: form.pin } });
   }
   return <Dialog open={open} onOpenChange={close}><DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl"><DialogHeader><DialogTitle>Nova empresa</DialogTitle></DialogHeader>
-    {link ? <div className="space-y-4">
-      <p className="text-base">Tudo pronto! Envie o acesso para o dono da <b>{form.name}</b>.</p>
-      <Button asChild size="xl" className="w-full rounded-2xl"><a href={link} target="_blank" rel="noreferrer"><MessageCircle />Enviar Acesso via WhatsApp</a></Button>
-      <Button variant="ghost" size="xl" className="w-full rounded-2xl" onClick={() => close(false)}>Fechar</Button>
-    </div> :
+    {access ? <AccessSuccess data={access} onClose={() => close(false)} /> :
     <form onSubmit={submit} className="space-y-4">
       <Field label="Nome da loja" error={errors["name"]}><Input className="h-12 rounded-2xl" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
       <Field label="Endereço (slug)" error={errors["slug"]}><Input className="h-12 rounded-2xl" placeholder="minha-loja" value={form.slug} onChange={(e) => setForm({ ...form, slug: slugTyping(e.target.value) })} /></Field>
@@ -189,13 +186,15 @@ function CriarDono({ company, onClose }: { company: Company | null; onClose: () 
   const save = useServerFn(createOwner);
   const [form, setForm] = useState({ fullName: "", phone: "", pin: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [access, setAccess] = useState<AccessData | null>(null);
+  function reset() { setAccess(null); setForm({ fullName: "", phone: "", pin: "" }); setErrors({}); onClose(); }
   const m = useMutation({
     mutationFn: (input: unknown) => save({ data: input }),
     onSuccess: (r) => {
       if (!r.ok) { toast.error(r.message); return; }
       toast.success(r.message);
       qc.invalidateQueries({ queryKey: ["admin"] });
-      setForm({ fullName: "", phone: "", pin: "" }); onClose();
+      setAccess({ name: form.fullName, phone: form.phone, company: company?.name ?? "", pin: form.pin, link: accessWhatsappLink(form.phone, form.fullName, company?.name ?? "", form.pin, window.location.origin) });
     },
     onError: () => toast.error("Não conseguimos criar o acesso."),
   });
@@ -205,13 +204,14 @@ function CriarDono({ company, onClose }: { company: Company | null; onClose: () 
     if (!r.success) { setErrors(Object.fromEntries(r.error.issues.map((i) => [String(i.path[0]), i.message]))); return; }
     setErrors({}); m.mutate({ ...form, companyId: company?.id });
   }
-  return <Dialog open={!!company} onOpenChange={(o) => !o && onClose()}><DialogContent className="rounded-3xl"><DialogHeader><DialogTitle>Acesso do dono · {company?.name}</DialogTitle></DialogHeader>
+  return <Dialog open={!!company} onOpenChange={(o) => { if (!o && !m.isPending) reset(); }}><DialogContent className="rounded-3xl"><DialogHeader><DialogTitle>Acesso do dono · {company?.name}</DialogTitle></DialogHeader>
+    {access ? <AccessSuccess data={access} onClose={reset} /> :
     <form onSubmit={submit} className="space-y-4">
       <Field label="Nome" error={errors["fullName"]}><Input className="h-12 rounded-2xl" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} /></Field>
       <Field label="WhatsApp" error={errors["phone"]}><Input className="h-12 rounded-2xl" inputMode="tel" placeholder="(73) 9 0000-0000" value={form.phone} onChange={(e) => setForm({ ...form, phone: maskPhone(e.target.value) })} /></Field>
       <Field label="PIN provisório (6 números)" error={errors["pin"]}><Input className="h-12 rounded-2xl" inputMode="numeric" maxLength={6} value={form.pin} onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "").slice(0, 6) })} /></Field>
       <Button type="submit" size="xl" className="w-full rounded-2xl" disabled={m.isPending}>{m.isPending ? "Criando..." : "Criar acesso"}</Button>
-    </form></DialogContent></Dialog>;
+    </form>}</DialogContent></Dialog>;
 }
 
 function EditarEmpresa({ company, onClose }: { company: Company; onClose: () => void }) {
