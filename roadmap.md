@@ -44,6 +44,11 @@
 - [ ] Verificar participação, troca de loja e upload autenticados: sessão indisponível no Supabase externo.
 - [ ] Liberar bucket público company-logos: bloqueado pela configuração do workspace.
 
+## Envio de acesso no WhatsApp
+- [x] Card de confirmação com dono, loja, WhatsApp e PIN provisório na criação de loja e na criação de acesso do dono.
+- [x] Botão verde "Enviar Acesso no WhatsApp" abrindo o wa.me com mensagem pronta (loja, WhatsApp, PIN e link de entrada).
+- [x] Testar: 62 aprovados; dois fluxos verificados no app com loja temporária criada e excluída.
+
 ## Auditoria Advisor Supabase
 - [x] Inventariar 20 avisos atuais, RLS, funções, permissões e armazenamento.
 - [x] Mostrar SQL e aplicar bloqueio de helper interno e permissões mínimas da pesquisa, preservando RPCs autorizadas.
