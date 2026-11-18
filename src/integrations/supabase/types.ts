@@ -17,6 +17,7 @@ export type Database = {
       companies: {
         Row: {
           active: boolean
+          address: string | null
           city: string | null
           created_at: string
           google_review_points: number
@@ -32,6 +33,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          address?: string | null
           city?: string | null
           created_at?: string
           google_review_points?: number
@@ -47,6 +49,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          address?: string | null
           city?: string | null
           created_at?: string
           google_review_points?: number
@@ -423,6 +426,7 @@ export type Database = {
       admin_editar_empresa: {
         Args: {
           _active: boolean
+          _address?: string
           _city: string
           _id: string
           _logo_url: string
@@ -499,10 +503,12 @@ export type Database = {
       lojas_parceiras: {
         Args: never
         Returns: {
+          address: string
           city: string
           id: string
           logo_url: string
           name: string
+          rewards: Json
           slug: string
         }[]
       }

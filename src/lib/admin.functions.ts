@@ -16,7 +16,7 @@ export const listCompanies = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data, error } = await context.supabase.from("companies").select("id,name,slug,plan,active,monthly_fee,logo_url,city").order("created_at", { ascending: false });
+    const { data, error } = await context.supabase.from("companies").select("id,name,slug,plan,active,monthly_fee,logo_url,city,address").order("created_at", { ascending: false });
     if (error) throw new Error("Não conseguimos carregar as empresas.");
     const { data: owners } = await context.supabase.from("user_roles").select("company_id").eq("role", "dono");
     const withOwner = new Set((owners ?? []).map((o) => o.company_id));
@@ -67,7 +67,7 @@ export const updateCompany = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => companySchema.extend({ id: z.string().uuid(), active: z.boolean(), logoUrl: z.string().url().nullable() }).parse(input))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { error } = await context.supabase.rpc("admin_editar_empresa", { _id: data.id, _name: data.name, _slug: data.slug, _plan: data.plan, _monthly_fee: data.monthlyFee, _city: data.city, _logo_url: data.logoUrl ?? "", _active: data.active });
+    const { error } = await context.supabase.rpc("admin_editar_empresa", { _id: data.id, _name: data.name, _slug: data.slug, _plan: data.plan, _monthly_fee: data.monthlyFee, _city: data.city, _logo_url: data.logoUrl ?? "", _active: data.active, _address: data.address });
     if (error) throw new Error(error.message);
     return { ok: true };
   });

@@ -28,3 +28,10 @@ describe("vitrine de descoberta", () => {
     expect(discoverableStores(stores, [{ companyId: "a" }, { companyId: "b" }, { companyId: "c" }])).toEqual([]);
   });
 });
+import { mapsLink } from "@/lib/multi-store";
+describe("mapsLink", () => {
+  it("monta busca do Google Maps com endereço e cidade", () => {
+    expect(mapsLink("Av. Ubaitaba, 1161", "Ubaitaba")).toBe("https://www.google.com/maps/search/?api=1&query=Av.%20Ubaitaba%2C%201161%2C%20Ubaitaba");
+  });
+  it("sem endereço nem cidade não gera link", () => { expect(mapsLink(null, "")).toBeNull(); });
+});

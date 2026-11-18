@@ -41,7 +41,7 @@ export const Route = createFileRoute("/admin")({
   component: Admin,
 });
 
-type Company = { id: string; name: string; slug: string; plan: string; active: boolean; monthly_fee: number; hasOwner: boolean; logo_url: string | null; city: string | null };
+type Company = { id: string; name: string; slug: string; plan: string; active: boolean; monthly_fee: number; hasOwner: boolean; logo_url: string | null; city: string | null; address: string | null };
 
 function Admin() {
   const fetchCompanies = useServerFn(listCompanies);
@@ -81,7 +81,7 @@ function Admin() {
           {!data.length ? <Empty>Nenhuma empresa ainda.</Empty> : <ul className="space-y-3">{data.map((c) => (
             <li key={c.id} className="rounded-3xl border border-border bg-card p-4">
               <div className="flex items-start justify-between gap-2">
-                <CompanyLogo name={c.name} url={c.logo_url} /><div className="min-w-0 flex-1"><h3 className="break-words text-lg font-extrabold">{c.name}</h3><p className="text-sm text-muted-foreground">/{c.slug}</p><p className="text-sm text-muted-foreground">{c.city}</p></div>
+                <CompanyLogo name={c.name} url={c.logo_url} /><div className="min-w-0 flex-1"><h3 className="break-words text-lg font-extrabold">{c.name}</h3><p className="text-sm text-muted-foreground">{[c.address, c.city].filter(Boolean).join(" · ") || `/${c.slug}`}</p></div>
                 <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-extrabold ${c.active ? "bg-accent text-primary" : "bg-muted text-muted-foreground"}`}>{c.active ? "Ativa" : "Inativa"}</span>
               </div>
               <div className="mt-3 flex items-center justify-between text-sm"><span className="rounded-full bg-secondary px-3 py-1 font-bold">{planLabel(c.plan)}</span><span className="font-extrabold">{brl(c.monthly_fee)}/mês</span></div>
@@ -126,7 +126,7 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
   const update = useServerFn(updateCompany);
   const remove = useServerFn(deleteCompany);
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const blank = { city: "", name: "", slug: "", plan: "basic" as PlanId, monthlyFee: String(PLANS.basic.fee), fullName: "", phone: "", pin: "" };
+  const blank = { city: "", address: "", name: "", slug: "", plan: "basic" as PlanId, monthlyFee: String(PLANS.basic.fee), fullName: "", phone: "", pin: "" };
   const [form, setForm] = useState(blank);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [access, setAccess] = useState<AccessData | null>(null);
@@ -155,7 +155,7 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
   function close(o: boolean) { if (!o) { setForm(blank); setLogoFile(null); setAccess(null); setErrors({}); } onOpenChange(o); }
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    const c = companySchema.safeParse({ city: form.city, name: form.name, slug: form.slug, plan: form.plan, monthlyFee: form.monthlyFee.replace(",", ".") });
+    const c = companySchema.safeParse({ city: form.city, address: form.address, name: form.name, slug: form.slug, plan: form.plan, monthlyFee: form.monthlyFee.replace(",", ".") });
     const o = ownerSchema.safeParse({ fullName: form.fullName, phone: form.phone, pin: form.pin, companyId: "00000000-0000-4000-8000-000000000000" });
     const issues = [...(c.success ? [] : c.error.issues), ...(o.success ? [] : o.error.issues)];
     if (!c.success || issues.length) { setErrors(Object.fromEntries(issues.map((i) => [String(i.path[0]), i.message]))); return; }
@@ -165,8 +165,9 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
     {access ? <AccessSuccess data={access} onClose={() => close(false)} /> :
     <form onSubmit={submit} className="space-y-4">
       <Field label="Nome da loja" error={errors["name"]}><Input className="h-12 rounded-2xl" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
-      <Field label="Endereço (slug)" error={errors["slug"]}><Input className="h-12 rounded-2xl" placeholder="minha-loja" value={form.slug} onChange={(e) => setForm({ ...form, slug: slugTyping(e.target.value) })} /></Field>
+      <Field label="Link do clube (slug)" error={errors["slug"]}><Input className="h-12 rounded-2xl" placeholder="minha-loja" value={form.slug} onChange={(e) => setForm({ ...form, slug: slugTyping(e.target.value) })} /></Field>
       <CompanyLogoInput file={logoFile} onChange={setLogoFile} />
+      <Field label="Endereço da loja" error={errors["address"]}><Input className="h-12 rounded-2xl" placeholder="Av. Ubaitaba, 1161" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></Field>
       <Field label="Cidade" error={errors["city"]}><Input className="h-12 rounded-2xl" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
       <Field label="Plano">
         <div className="grid gap-2">{(Object.keys(PLANS) as PlanId[]).map((p) => (
@@ -222,7 +223,7 @@ function EditarEmpresa({ company, onClose }: { company: Company; onClose: () => 
   const save = useServerFn(updateCompany);
   const upload = useServerFn(uploadCompanyLogo);
   const [file, setFile] = useState<File | null>(null);
-  const [form, setForm] = useState({ name: company.name, slug: company.slug, city: company.city ?? "", plan: company.plan as PlanId, monthlyFee: String(company.monthly_fee), active: company.active });
+  const [form, setForm] = useState({ name: company.name, slug: company.slug, city: company.city ?? "", address: company.address ?? "", plan: company.plan as PlanId, monthlyFee: String(company.monthly_fee), active: company.active });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const mutation = useMutation({ mutationFn: async () => {
     const parsed = companySchema.parse({ ...form, monthlyFee: form.monthlyFee.replace(",", ".") });
@@ -235,7 +236,8 @@ function EditarEmpresa({ company, onClose }: { company: Company; onClose: () => 
     <form onSubmit={submit} className="space-y-4">
       <CompanyLogoInput file={file} onChange={setFile} url={company.logo_url} />
       <Field label="Nome da loja" error={errors["name"]}><Input aria-label="Nome da loja" className="h-12 rounded-2xl" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
-      <Field label="Endereço (slug)" error={errors["slug"]}><Input className="h-12 rounded-2xl" value={form.slug} onChange={(e) => setForm({ ...form, slug: slugTyping(e.target.value) })} /></Field>
+      <Field label="Link do clube (slug)" error={errors["slug"]}><Input className="h-12 rounded-2xl" value={form.slug} onChange={(e) => setForm({ ...form, slug: slugTyping(e.target.value) })} /></Field>
+      <Field label="Endereço da loja" error={errors["address"]}><Input aria-label="Endereço da loja" className="h-12 rounded-2xl" placeholder="Av. Ubaitaba, 1161" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></Field>
       <Field label="Cidade" error={errors["city"]}><Input aria-label="Cidade" className="h-12 rounded-2xl" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
       <Field label="Plano"><select className="h-12 w-full rounded-2xl border border-border bg-card px-3" value={form.plan} onChange={(e) => setForm({ ...form, plan: e.target.value as PlanId })}>{(Object.keys(PLANS) as PlanId[]).map((p) => <option key={p} value={p}>{PLANS[p].label}</option>)}</select></Field>
       <Field label="Mensalidade (R$)" error={errors["monthlyFee"]}><Input className="h-12 rounded-2xl" inputMode="decimal" value={form.monthlyFee} onChange={(e) => setForm({ ...form, monthlyFee: e.target.value })} /></Field>
