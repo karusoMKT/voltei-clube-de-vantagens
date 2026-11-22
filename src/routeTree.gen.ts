@@ -29,7 +29,6 @@ import { Route as EmpresaConfiguracoesRouteImport } from './routes/empresa.confi
 import { Route as EmpresaEquipeRouteImport } from './routes/empresa.equipe'
 import { Route as EmpresaPremiosRouteImport } from './routes/empresa.premios'
 import { Route as EmpresaResumoRouteImport } from './routes/empresa.resumo'
-import { Route as ApiPublicAlertsJobRouteImport } from './routes/api/public/alerts/$job'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -131,11 +130,6 @@ const EmpresaResumoRoute = EmpresaResumoRouteImport.update({
   path: '/resumo',
   getParentRoute: () => EmpresaRoute,
 } as any)
-const ApiPublicAlertsJobRoute = ApiPublicAlertsJobRouteImport.update({
-  id: '/api/public/alerts/$job',
-  path: '/api/public/alerts/$job',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -158,7 +152,6 @@ export interface FileRoutesByFullPath {
   '/caixa/': typeof CaixaIndexRoute
   '/cliente/': typeof ClienteIndexRoute
   '/empresa/': typeof EmpresaIndexRoute
-  '/api/public/alerts/$job': typeof ApiPublicAlertsJobRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -178,7 +171,6 @@ export interface FileRoutesByTo {
   '/caixa': typeof CaixaIndexRoute
   '/cliente': typeof ClienteIndexRoute
   '/empresa': typeof EmpresaIndexRoute
-  '/api/public/alerts/$job': typeof ApiPublicAlertsJobRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -202,7 +194,6 @@ export interface FileRoutesById {
   '/caixa/': typeof CaixaIndexRoute
   '/cliente/': typeof ClienteIndexRoute
   '/empresa/': typeof EmpresaIndexRoute
-  '/api/public/alerts/$job': typeof ApiPublicAlertsJobRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -227,7 +218,6 @@ export interface FileRouteTypes {
     | '/caixa/'
     | '/cliente/'
     | '/empresa/'
-    | '/api/public/alerts/$job'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -247,7 +237,6 @@ export interface FileRouteTypes {
     | '/caixa'
     | '/cliente'
     | '/empresa'
-    | '/api/public/alerts/$job'
   id:
     | '__root__'
     | '/'
@@ -270,7 +259,6 @@ export interface FileRouteTypes {
     | '/caixa/'
     | '/cliente/'
     | '/empresa/'
-    | '/api/public/alerts/$job'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -281,7 +269,6 @@ export interface RootRouteChildren {
   EmpresaRoute: typeof EmpresaRouteWithChildren
   EntrarRoute: typeof EntrarRoute
   CSlugRoute: typeof CSlugRoute
-  ApiPublicAlertsJobRoute: typeof ApiPublicAlertsJobRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -426,13 +413,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresaResumoRouteImport
       parentRoute: typeof EmpresaRoute
     }
-    '/api/public/alerts/$job': {
-      id: '/api/public/alerts/$job'
-      path: '/api/public/alerts/$job'
-      fullPath: '/api/public/alerts/$job'
-      preLoaderRoute: typeof ApiPublicAlertsJobRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -496,7 +476,6 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresaRoute: EmpresaRouteWithChildren,
   EntrarRoute: EntrarRoute,
   CSlugRoute: CSlugRoute,
-  ApiPublicAlertsJobRoute: ApiPublicAlertsJobRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
