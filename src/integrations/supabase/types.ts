@@ -16,7 +16,6 @@ export type Database = {
     Tables: {
       companies: {
         Row: {
-          absent_days_threshold: number
           active: boolean
           address: string | null
           city: string | null
@@ -27,15 +26,12 @@ export type Database = {
           logo_url: string | null
           monthly_fee: number
           name: string
-          owner_alert_whatsapp: string | null
           plan: string
           points_per_real: number
           points_photo: number
           slug: string
-          whatsapp_alerts_enabled: boolean
         }
         Insert: {
-          absent_days_threshold?: number
           active?: boolean
           address?: string | null
           city?: string | null
@@ -46,15 +42,12 @@ export type Database = {
           logo_url?: string | null
           monthly_fee?: number
           name: string
-          owner_alert_whatsapp?: string | null
           plan?: string
           points_per_real?: number
           points_photo?: number
           slug: string
-          whatsapp_alerts_enabled?: boolean
         }
         Update: {
-          absent_days_threshold?: number
           active?: boolean
           address?: string | null
           city?: string | null
@@ -65,12 +58,10 @@ export type Database = {
           logo_url?: string | null
           monthly_fee?: number
           name?: string
-          owner_alert_whatsapp?: string | null
           plan?: string
           points_per_real?: number
           points_photo?: number
           slug?: string
-          whatsapp_alerts_enabled?: boolean
         }
         Relationships: []
       }
@@ -401,47 +392,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "user_roles_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      whatsapp_alert_logs: {
-        Row: {
-          alert_type: string
-          company_id: string
-          created_at: string
-          error: string | null
-          id: string
-          payload: Json
-          ref: string | null
-          status: string
-        }
-        Insert: {
-          alert_type: string
-          company_id: string
-          created_at?: string
-          error?: string | null
-          id?: string
-          payload?: Json
-          ref?: string | null
-          status?: string
-        }
-        Update: {
-          alert_type?: string
-          company_id?: string
-          created_at?: string
-          error?: string | null
-          id?: string
-          payload?: Json
-          ref?: string | null
-          status?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "whatsapp_alert_logs_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
