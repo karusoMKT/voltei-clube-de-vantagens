@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { notifyRedemption } from "@/lib/alerts.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Empty, Loading } from "@/components/Empty";
@@ -19,10 +21,12 @@ export function RedemptionsPanel({ companyId }: { companyId: string }) {
     },
   });
 
+  const notify = useServerFn(notifyRedemption);
   const entregar = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.rpc("entregar_resgate", { _redemption_id: id });
       if (error) throw new Error(error.message);
+      notify({ data: { redemptionId: id } }).catch(() => undefined);
     },
     onSuccess: () => { setMsg("Prêmio entregue!"); qc.invalidateQueries({ queryKey: ["empresa", "resgates"] }); },
     onError: (e) => setMsg(e.message),

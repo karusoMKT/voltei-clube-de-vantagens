@@ -574,15 +574,6 @@ export type Database = {
         Args: { _aprovar: boolean; _points?: number; _submission: string }
         Returns: undefined
       }
-      salvar_alertas_whatsapp: {
-        Args: {
-          _company_id: string
-          _days: number
-          _enabled: boolean
-          _phone: string
-        }
-        Returns: undefined
-      }
       salvar_configuracao_pesquisa: {
         Args: { _company_id: string; _points: number; _url: string }
         Returns: undefined

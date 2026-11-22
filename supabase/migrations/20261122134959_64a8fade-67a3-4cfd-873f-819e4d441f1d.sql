@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.salvar_alertas_whatsapp(uuid, boolean, text, integer);
