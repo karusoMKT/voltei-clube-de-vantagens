@@ -29,7 +29,9 @@ export type Database = {
           plan: string
           points_per_real: number
           points_photo: number
+          referral_points: number
           slug: string
+          state: string | null
         }
         Insert: {
           active?: boolean
@@ -45,7 +47,9 @@ export type Database = {
           plan?: string
           points_per_real?: number
           points_photo?: number
+          referral_points?: number
           slug: string
+          state?: string | null
         }
         Update: {
           active?: boolean
@@ -61,7 +65,9 @@ export type Database = {
           plan?: string
           points_per_real?: number
           points_photo?: number
+          referral_points?: number
           slug?: string
+          state?: string | null
         }
         Relationships: []
       }
@@ -161,6 +167,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          city: string | null
           full_name: string | null
           id: string
           instagram: string | null
@@ -168,6 +175,7 @@ export type Database = {
           qr_token: string
         }
         Insert: {
+          city?: string | null
           full_name?: string | null
           id: string
           instagram?: string | null
@@ -175,6 +183,7 @@ export type Database = {
           qr_token?: string
         }
         Update: {
+          city?: string | null
           full_name?: string | null
           id?: string
           instagram?: string | null
@@ -231,6 +240,97 @@ export type Database = {
             columns: ["reward_id"]
             isOneToOne: false
             referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_codes: {
+        Row: {
+          code: string
+          company_id: string
+          created_at: string
+          referrer_id: string
+        }
+        Insert: {
+          code: string
+          company_id: string
+          created_at?: string
+          referrer_id: string
+        }
+        Update: {
+          code?: string
+          company_id?: string
+          created_at?: string
+          referrer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_codes_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_codes_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          company_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          points_awarded: number
+          referred_id: string
+          referrer_id: string
+          status: string
+        }
+        Insert: {
+          company_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          points_awarded?: number
+          referred_id: string
+          referrer_id: string
+          status?: string
+        }
+        Update: {
+          company_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          points_awarded?: number
+          referred_id?: string
+          referrer_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -414,6 +514,11 @@ export type Database = {
         }
         Returns: number
       }
+      _pagar_indicacao: {
+        Args: { _company: string; _customer: string }
+        Returns: undefined
+      }
+      aceitar_indicacao: { Args: { _code: string }; Returns: string }
       admin_criar_empresa: {
         Args: {
           _monthly_fee: number
@@ -422,6 +527,10 @@ export type Database = {
           _slug: string
         }
         Returns: string
+      }
+      admin_definir_estado: {
+        Args: { _id: string; _state: string }
+        Returns: undefined
       }
       admin_editar_empresa: {
         Args: {
@@ -510,8 +619,10 @@ export type Database = {
           name: string
           rewards: Json
           slug: string
+          state: string
         }[]
       }
+      meu_codigo_indicacao: { Args: { _company_id: string }; Returns: string }
       participar_clube: { Args: { _company_id: string }; Returns: undefined }
       recusar_foto: { Args: { _submission_id: string }; Returns: undefined }
       resgatar_premio: { Args: { _reward_id: string }; Returns: string }
