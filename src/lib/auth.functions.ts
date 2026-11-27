@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { signupSchema, phoneToEmail } from "./cadastro";
 
-type Result = { ok: true } | { ok: false; field?: "phone" | "slug"; message: string };
+type Result = { ok: true } | { ok: false; field?: "phone" | "slug" | "refCode"; message: string };
 
 export const criarConta = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => signupSchema.parse(input))
@@ -18,6 +18,11 @@ export const criarConta = createServerFn({ method: "POST" })
         .maybeSingle();
       if (!company) return { ok: false, field: "slug", message: "Não achamos essa loja. Peça o link certo no balcão." };
       companyId = company.id;
+    }
+
+    if (data.refCode) {
+      const { data: rc } = await supabaseAdmin.from("referral_codes").select("code").eq("code", data.refCode).maybeSingle();
+      if (!rc) return { ok: false, field: "refCode", message: "Não achamos esse código de convite. Confira com quem te convidou." };
     }
 
     const { data: existing } = await supabaseAdmin.from("profiles").select("id").eq("phone", data.phone).maybeSingle();

@@ -12,7 +12,7 @@ import { acceptInvite } from "@/lib/referral.functions";
 import { normalizeRefCode } from "@/lib/referral";
 import { loginSchema, maskPhone, phoneToEmail, signupSchema } from "@/lib/cadastro";
 
-type Errors = Partial<Record<"fullName" | "city" | "phone" | "instagram" | "pin" | "form", string | undefined>>;
+type Errors = Partial<Record<"fullName" | "city" | "refCode" | "phone" | "instagram" | "pin" | "form", string | undefined>>;
 
 function Field({ label, error, hint, children }: { label: string; error?: string | undefined; hint?: string; children: React.ReactNode }) {
   return (
@@ -38,10 +38,10 @@ function firstErrors(issues: { path: (string | number)[]; message: string }[]): 
 }
 
 export function EntrarForm({ slug, companyName, refCode }: { slug?: string | undefined; companyName?: string | undefined; refCode?: string | undefined }) {
-  const ref = normalizeRefCode(refCode);
+  const linkRef = normalizeRefCode(refCode);
   const accept = useServerFn(acceptInvite);
   const [mode, setMode] = useState<"cadastro" | "entrada">(slug ? "cadastro" : "entrada");
-  const [form, setForm] = useState({ fullName: "", phone: "", instagram: "", pin: "", city: "" });
+  const [form, setForm] = useState({ fullName: "", phone: "", instagram: "", pin: "", city: "", refCode: linkRef ?? "" });
   const [errors, setErrors] = useState<Errors>({});
   const [loading, setLoading] = useState(false);
   const [forgot, setForgot] = useState(false);
@@ -53,7 +53,7 @@ export function EntrarForm({ slug, companyName, refCode }: { slug?: string | und
     let alive = true;
     getSessionInfo().then(async (info) => {
       if (!alive || !info) return;
-      if (ref && info.role === "cliente") await applyInvite();
+      if (linkRef && info.role === "cliente") await applyInvite();
       navigate({ to: homeFor(info.role), replace: true });
     });
     return () => { alive = false; };
@@ -61,6 +61,7 @@ export function EntrarForm({ slug, companyName, refCode }: { slug?: string | und
   }, [navigate]);
 
   async function applyInvite() {
+    const ref = mode === "cadastro" ? normalizeRefCode(form.refCode) : linkRef;
     if (!ref) return;
     try {
       const r = await accept({ data: { code: ref } });
@@ -94,7 +95,7 @@ export function EntrarForm({ slug, companyName, refCode }: { slug?: string | und
       try {
         const res = await signup({ data: { ...form, slug } });
         if (!res.ok) {
-          setErrors(res.field === "phone" ? { phone: res.message } : { form: res.message });
+          setErrors(res.field === "phone" ? { phone: res.message } : res.field === "refCode" ? { refCode: res.message } : { form: res.message });
           return;
         }
         const err = await signIn(form.phone, form.pin);
@@ -162,6 +163,12 @@ export function EntrarForm({ slug, companyName, refCode }: { slug?: string | und
             hint="Usamos para conferir as fotos que você posta e dar seus pontos.">
             <input className={inputCls} autoCapitalize="none" autoCorrect="off" value={form.instagram}
               aria-invalid={!!errors.instagram} onChange={(e) => set("instagram", e.target.value)} placeholder="@seuperfil" />
+          </Field>
+        )}
+        {mode === "cadastro" && (
+          <Field label="Código de convite (opcional)" error={errors.refCode} hint="Quem te convidou ganha pontos na sua primeira compra.">
+            <input className={inputCls} autoCapitalize="characters" autoCorrect="off" maxLength={8} value={form.refCode}
+              aria-invalid={!!errors.refCode} onChange={(e) => set("refCode", e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))} placeholder="AB12CD34" />
           </Field>
         )}
         <Field label={mode === "cadastro" ? "Crie um PIN de 6 números" : "Seu PIN"} error={errors.pin}>

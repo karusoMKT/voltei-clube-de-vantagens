@@ -26,6 +26,12 @@ describe("cadastro", () => {
     expect(signupSchema.safeParse({ ...base, pin: "12345" }).success).toBe(false);
     expect(signupSchema.safeParse({ ...base, pin: "123456" }).success).toBe(true);
   });
+  it("código de convite é opcional e precisa ter 8 letras/números", () => {
+    const base = { fullName: "Ana", phone: "(73) 9 0000-0000", instagram: "ana", pin: "123456", city: "Ilhéus" };
+    expect(signupSchema.safeParse({ ...base, refCode: "" }).success).toBe(true);
+    expect(signupSchema.safeParse({ ...base, refCode: "ab12cd34" }).data?.refCode).toBe("AB12CD34");
+    expect(signupSchema.safeParse({ ...base, refCode: "ABC" }).success).toBe(false);
+  });
   it("cadastro exige cidade", () => {
     const base = { fullName: "Ana", phone: "(73) 9 0000-0000", instagram: "ana", pin: "123456" };
     expect(signupSchema.safeParse(base).success).toBe(false);

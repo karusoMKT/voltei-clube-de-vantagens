@@ -40,6 +40,7 @@ export const signupSchema = z.object({
   pin,
   city: z.string().trim().min(2, "Escolha sua cidade.").max(100, "Cidade muito longa."),
   slug: z.string().trim().max(80).optional(),
+  refCode: z.string().trim().toUpperCase().refine((v) => v === "" || /^[A-Z0-9]{8}$/.test(v), "O código de convite tem 8 letras e números.").optional(),
 });
 
 export const loginSchema = z.object({ phone, pin });
