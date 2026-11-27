@@ -561,6 +561,7 @@ export type Database = {
           points_balance: number
         }[]
       }
+      can_read_company_logo: { Args: { _folder: string }; Returns: boolean }
       company_plan_allows: {
         Args: { _company: string; _feature: string }
         Returns: boolean
