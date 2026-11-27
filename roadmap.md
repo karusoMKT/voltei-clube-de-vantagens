@@ -44,6 +44,12 @@
 - [ ] Verificar participação, troca de loja e upload autenticados: sessão indisponível no Supabase externo.
 - [ ] Liberar bucket público company-logos: bloqueado pela configuração do workspace.
 
+## Correção do fluxo de logos
+- [ ] Reproduzir a falha de exibição e validar o arquivo existente no armazenamento.
+- [ ] Corrigir upload, persistência da URL e leitura autenticada sem expirar a imagem salva.
+- [ ] Conferir logo no admin, empresa, configurações e visão do cliente, com iniciais como reserva.
+- [ ] Rodar a suíte e validar o fluxo real de cadastro/edição.
+
 ## Envio de acesso no WhatsApp
 - [x] Card de confirmação com dono, loja, WhatsApp e PIN provisório na criação de loja e na criação de acesso do dono.
 - [x] Botão verde "Enviar Acesso no WhatsApp" abrindo o wa.me com mensagem pronta (loja, WhatsApp, PIN e link de entrada).
