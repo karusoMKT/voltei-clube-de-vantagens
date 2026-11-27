@@ -1,0 +1,1 @@
+GRANT UPDATE (city) ON public.profiles TO authenticated;

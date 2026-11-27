@@ -1,3 +1,4 @@
+import { useRouterState } from "@tanstack/react-router";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { clienteQuery } from "@/lib/cliente-data";
@@ -19,7 +20,9 @@ export function useCustomerWallet() {
 }
 export function WalletSelector() {
   const { data, select } = useCustomerWallet();
-  if (!data?.membership) return null;
+  const pathname = useRouterState({ select: (st) => st.location.pathname });
+  // No Perfil o cabeçalho é do cliente, não da loja.
+  if (!data?.membership || pathname.startsWith("/cliente/perfil")) return null;
   return <div className="px-5 pt-5">
     {data.memberships.length > 1 ? <div aria-label="Escolher loja" className="flex gap-3 overflow-x-auto pb-2">
       {data.memberships.map((m) => <Button key={m.companyId} variant="ghost" aria-pressed={m.companyId === data.membership?.companyId}
