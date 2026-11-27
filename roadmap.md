@@ -41,14 +41,14 @@
 - [x] Cadastro/edição de empresas com logo e cidade; cabeçalhos com identidade da loja.
 - [x] Carteira com seleção de loja, prêmios, fotos e extrato separados; vitrine de lojas ativas.
 - [x] Testar suíte e fluxos disponíveis: 51 aprovados, 46 testes reais ignorados sem tokens; entrada mobile e proteção verificadas.
-- [ ] Verificar participação, troca de loja e upload autenticados: sessão indisponível no Supabase externo.
-- [ ] Liberar bucket público company-logos: bloqueado pela configuração do workspace.
+- [ ] Verificar participação e troca de loja autenticadas: não fazem parte desta correção.
+- [ ] Liberar bucket público company-logos: bloqueado pela configuração do workspace; leitura autenticada funciona sem exposição anônima.
 
 ## Correção do fluxo de logos
-- [ ] Reproduzir a falha de exibição e validar o arquivo existente no armazenamento.
-- [ ] Corrigir upload, persistência da URL e leitura autenticada sem expirar a imagem salva.
-- [ ] Conferir logo no admin, empresa, configurações e visão do cliente, com iniciais como reserva.
-- [ ] Rodar a suíte e validar o fluxo real de cadastro/edição.
+- [x] Reproduzir a falha de exibição e validar o arquivo existente no armazenamento.
+- [x] Corrigir a leitura autorizada das logos, inclusive de lojas ativas que o cliente ainda não participa.
+- [x] Conferir logo no admin, empresa, configurações, carteira e vitrine do cliente, com iniciais como reserva.
+- [x] Validar upload real, edição e limpeza; suíte com 72 aprovados e 3 testes reais de logos preparados para execução com tokens.
 
 ## Envio de acesso no WhatsApp
 - [x] Card de confirmação com dono, loja, WhatsApp e PIN provisório na criação de loja e na criação de acesso do dono.
