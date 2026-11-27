@@ -135,20 +135,21 @@ function NovaEmpresa({ open, onOpenChange }: { open: boolean; onOpenChange: (o: 
     mutationFn: async (input: { company: unknown; owner: { fullName: string; phone: string; pin: string } }) => {
       const c = await save({ data: input.company });
       if (!c.ok || !c.id) return { ok: false, message: c.message };
+      let warning: string | null = null;
       try {
         let logoUrl: string | null = null;
         if (logoFile) { const payload = new FormData(); payload.set("companyId", c.id); payload.set("file", logoFile); logoUrl = await uploadLogo({ data: payload }); }
         await update({ data: { ...companySchema.parse(input.company), id: c.id, active: true, logoUrl } });
-      } catch (e) { toast.error(`Loja criada, mas cidade/logo não foram salvas: ${e instanceof Error ? e.message : "Tente editar a empresa."}`); }
+      } catch (e) { warning = `A loja foi criada, mas o endereço ou a logo não foram salvos: ${e instanceof Error ? e.message : "erro desconhecido"}. Use Editar no card da loja para concluir.`; }
       const o = await saveOwner({ data: { ...input.owner, companyId: c.id } });
-      if (o.ok) return { ok: true, message: "Loja e acesso do dono criados!" };
+      if (o.ok) return { ok: true, message: "Loja e acesso do dono criados!", warning };
       try { await remove({ data: { id: c.id } }); } catch { return { ok: false, message: `${o.message} A loja ficou criada sem dono; use "Criar acesso do dono" ou exclua-a.` }; }
       return { ok: false, message: `${o.message} Nada foi salvo; corrija e tente de novo.` };
     },
     onSuccess: (r) => {
       qc.invalidateQueries({ queryKey: ["admin"] });
       if (!r.ok) { toast.error(r.message); return; }
-      toast.success(r.message);
+      if ("warning" in r && r.warning) toast.warning(r.warning); else toast.success(r.message);
       setAccess({ name: form.fullName, phone: form.phone, company: form.name, pin: form.pin, link: accessWhatsappLink(form.phone, form.fullName, form.name, form.pin, window.location.origin) });
     },
     onError: (e: Error) => toast.error(e.message ? `Não conseguimos criar a empresa: ${e.message}` : "Não conseguimos criar a empresa."),

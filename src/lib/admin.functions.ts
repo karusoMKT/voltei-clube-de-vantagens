@@ -102,6 +102,6 @@ export const uploadCompanyLogo = createServerFn({ method: "POST" }).middleware([
     const ext = image.type === "jpg" ? "jpg" : image.type === "png" ? "png" : "webp";
     const path = `${data.companyId}/${crypto.randomUUID()}.${ext}`;
     const { error } = await context.supabase.storage.from("company-logos").upload(path, bytes, { contentType: ext === "jpg" ? "image/jpeg" : `image/${ext}` });
-    if (error) throw new Error("Não conseguimos enviar a logo.");
+    if (error) throw new Error(`Não conseguimos enviar a logo: ${error.message}`);
     return context.supabase.storage.from("company-logos").getPublicUrl(path).data.publicUrl;
   });

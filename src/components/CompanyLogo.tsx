@@ -18,6 +18,6 @@ export function CompanyLogo({ name, url, large = false }: { name: string; url?: 
   } });
   const src = local ?? signed ?? null;
   return <span className={`flex shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-secondary font-extrabold text-primary ${large ? "h-16 w-16 text-xl" : "h-12 w-12 text-base"}`}>
-    {src && failed !== src ? <img src={src} alt={`Logo de ${name}`} className="h-full w-full bg-card object-contain" onError={() => setFailed(src)} /> : <span aria-label={`Logo de ${name}`}>{initials(name)}</span>}
+    {src && failed !== src ? <img src={src} alt={`Logo de ${name}`} className="h-full w-full bg-card object-cover" onError={() => setFailed(src)} /> : <span aria-label={`Logo de ${name}`}>{initials(name)}</span>}
   </span>;
 }
