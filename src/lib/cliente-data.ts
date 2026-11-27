@@ -14,7 +14,7 @@ export const clienteQuery = queryOptions({
   queryKey: ["cliente", "carteiras"],
   queryFn: async () => {
     const id = await uid();
-    const { data: profile, error } = await supabase.from("profiles").select("id, full_name, qr_token, instagram").eq("id", id).single();
+    const { data: profile, error } = await supabase.from("profiles").select("id, full_name, qr_token, instagram, city").eq("id", id).single();
     if (error) throw error;
     const { data: rows, error: membershipError } = await supabase.from("memberships")
       .select("company_id, points_balance, companies(name, logo_url, city, points_photo, plan, active, google_review_url, google_review_points)")

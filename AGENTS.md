@@ -41,3 +41,5 @@ use the editor.
 - Store discovery projects identity fields through a customer-authorized RPC; joining is idempotent and initializes only new memberships at zero points.
 - Company logos use admin-authorized, byte-validated uploads and signed read URLs so workspace public-bucket restrictions do not break authenticated displays.
 - All roles share one PIN form; validate current/new/confirmation and reauthenticate the verified account with Supabase before updating its password.
+- Referrals: codes and referral rows are written only by RPCs; the referrer is paid inside lancar_compra on the invitee's first valid purchase (unique per company/invitee, no self-referral, invitees with prior purchases rejected).
+- Store discovery filters by the customer's profile city client-side (accent-insensitive); company state is set by an admin-only RPC.

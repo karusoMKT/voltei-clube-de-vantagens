@@ -9,9 +9,9 @@ export const PLANS: Record<PlanId, { label: string; fee: number; features: strin
 };
 export const planLabel = (p: string) => PLANS[p as PlanId]?.label ?? p;
 
-export type Feature = "rewards" | "photos" | "reactivation";
+export type Feature = "rewards" | "calculator" | "photos" | "reactivation";
 export function planAllows(plan: string, feature: Feature) {
-  if (feature === "rewards") return plan === "pro" || plan === "premium";
+  if (feature === "rewards" || feature === "calculator") return plan === "pro" || plan === "premium";
   return plan === "premium";
 }
 
@@ -43,6 +43,7 @@ export function slugTyping(value: string) {
 export const companySchema = z.object({
   city: z.string().trim().max(100, "Cidade muito longa.").default(""),
   address: z.string().trim().max(160, "Endereço muito longo.").default(""),
+  state: z.string().trim().toUpperCase().refine((v) => v === "" || /^[A-Z]{2}$/.test(v), "Escolha o estado (UF).").default(""),
   name: z.string().trim().min(2, "Digite o nome da loja.").max(80, "Nome muito longo."),
   slug: z
     .string()

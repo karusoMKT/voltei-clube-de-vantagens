@@ -7,9 +7,12 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { toast } from "sonner";
 import { criarConta } from "@/lib/auth.functions";
 import { getSessionInfo, homeFor } from "@/lib/session";
+import { CityPicker } from "@/components/CityPicker";
+import { acceptInvite } from "@/lib/referral.functions";
+import { normalizeRefCode } from "@/lib/referral";
 import { loginSchema, maskPhone, phoneToEmail, signupSchema } from "@/lib/cadastro";
 
-type Errors = Partial<Record<"fullName" | "phone" | "instagram" | "pin" | "form", string | undefined>>;
+type Errors = Partial<Record<"fullName" | "city" | "phone" | "instagram" | "pin" | "form", string | undefined>>;
 
 function Field({ label, error, hint, children }: { label: string; error?: string | undefined; hint?: string; children: React.ReactNode }) {
   return (
@@ -34,9 +37,11 @@ function firstErrors(issues: { path: (string | number)[]; message: string }[]): 
   return out;
 }
 
-export function EntrarForm({ slug, companyName }: { slug?: string | undefined; companyName?: string | undefined }) {
+export function EntrarForm({ slug, companyName, refCode }: { slug?: string | undefined; companyName?: string | undefined; refCode?: string | undefined }) {
+  const ref = normalizeRefCode(refCode);
+  const accept = useServerFn(acceptInvite);
   const [mode, setMode] = useState<"cadastro" | "entrada">(slug ? "cadastro" : "entrada");
-  const [form, setForm] = useState({ fullName: "", phone: "", instagram: "", pin: "" });
+  const [form, setForm] = useState({ fullName: "", phone: "", instagram: "", pin: "", city: "" });
   const [errors, setErrors] = useState<Errors>({});
   const [loading, setLoading] = useState(false);
   const [forgot, setForgot] = useState(false);
@@ -46,9 +51,23 @@ export function EntrarForm({ slug, companyName }: { slug?: string | undefined; c
   // Só redireciona com sessão ativa e válida; sem isso a tela de login fica aberta.
   useEffect(() => {
     let alive = true;
-    getSessionInfo().then((info) => { if (alive && info) navigate({ to: homeFor(info.role), replace: true }); });
+    getSessionInfo().then(async (info) => {
+      if (!alive || !info) return;
+      if (ref && info.role === "cliente") await applyInvite();
+      navigate({ to: homeFor(info.role), replace: true });
+    });
     return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
+
+  async function applyInvite() {
+    if (!ref) return;
+    try {
+      const r = await accept({ data: { code: ref } });
+      if (r.ok) toast.success("Convite aceito! Quem te convidou ganha pontos na sua primeira compra.");
+      else toast.error(r.message);
+    } catch { /* convite opcional */ }
+  }
 
   async function goHome() {
     const info = await getSessionInfo();
@@ -80,6 +99,7 @@ export function EntrarForm({ slug, companyName }: { slug?: string | undefined; c
         }
         const err = await signIn(form.phone, form.pin);
         if (err) return setErrors({ form: "Sua conta foi criada! Agora é só entrar com seu PIN." });
+        await applyInvite();
         await goHome();
       } catch {
         setErrors({ form: "Algo não saiu como esperado. Tente de novo em instantes." });
@@ -96,6 +116,7 @@ export function EntrarForm({ slug, companyName }: { slug?: string | undefined; c
         toast.error("WhatsApp ou PIN incorretos. Confira e tente de novo.");
         return;
       }
+      await applyInvite();
       await goHome();
       setLoading(false);
     }
@@ -124,6 +145,11 @@ export function EntrarForm({ slug, companyName }: { slug?: string | undefined; c
           <Field label="Seu nome" error={errors.fullName}>
             <input className={inputCls} autoComplete="name" value={form.fullName} aria-invalid={!!errors.fullName}
               onChange={(e) => set("fullName", e.target.value)} placeholder="Como você se chama" />
+          </Field>
+        )}
+        {mode === "cadastro" && (
+          <Field label="Sua cidade" error={errors.city} hint="Mostramos as lojas do clube perto de você.">
+            <CityPicker value={form.city} onChange={(v) => set("city", v)} className={inputCls} invalid={!!errors.city} />
           </Field>
         )}
         <Field label="Seu WhatsApp" error={errors.phone}>

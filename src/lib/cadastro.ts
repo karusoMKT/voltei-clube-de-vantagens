@@ -38,6 +38,7 @@ export const signupSchema = z.object({
     .transform(normalizeInstagram)
     .refine((v) => /^@[a-z0-9._]{1,30}$/.test(v), "Digite seu @ do Instagram, só letras, números, ponto ou _."),
   pin,
+  city: z.string().trim().min(2, "Escolha sua cidade.").max(100, "Cidade muito longa."),
   slug: z.string().trim().max(80).optional(),
 });
 

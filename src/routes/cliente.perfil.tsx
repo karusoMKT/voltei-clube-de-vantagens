@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageTitle } from "@/components/AppShell";
 import { TrocarPin } from "@/components/TrocarPin";
+import { CityPreference } from "@/components/CityPreference";
+import { useCustomerWallet } from "@/components/CustomerWallet";
 
 export const Route = createFileRoute("/cliente/perfil")({
   head: () => ({
@@ -17,10 +19,11 @@ export const Route = createFileRoute("/cliente/perfil")({
 });
 
 function Perfil() {
+  const { data } = useCustomerWallet();
   return (
     <>
       <PageTitle title="Perfil" />
-      <div className="px-5 pt-6"><TrocarPin /></div>
+      <div className="space-y-5 px-5 pt-6">{data && <CityPreference key={data.profile.city ?? ""} userId={data.profile.id} city={data.profile.city ?? null} />}<TrocarPin /></div>
     </>
   );
 }

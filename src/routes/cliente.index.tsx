@@ -2,6 +2,7 @@ import { PartnerStores } from "@/components/PartnerStores";
 import { useCustomerWallet } from "@/components/CustomerWallet";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ImagePlus } from "lucide-react";
+import { InviteCard } from "@/components/InviteCard";
 import { SatisfactionCard } from "@/components/SatisfactionCard";
 import { GoogleInvitation } from "@/components/GoogleInvitation";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,8 @@ function Inicio() {
       ) : (
         <Empty>Você ainda não está no clube de nenhuma loja. Peça o link no balcão.</Empty>
       )}
+
+      {m && <InviteCard key={m.companyId} companyId={m.companyId} companyName={m.companyName} />}
 
       <PartnerStores />
 

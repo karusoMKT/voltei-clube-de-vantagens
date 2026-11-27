@@ -14,6 +14,16 @@ describe("planos", () => {
     expect(planAllows("pro", "rewards")).toBe(true);
     expect(planAllows("pro", "photos")).toBe(false);
   });
+  it("calculadora de prêmios bloqueada no Básico e liberada no Profissional e Premium", () => {
+    expect(planAllows("basic", "calculator")).toBe(false);
+    expect(planAllows("pro", "calculator")).toBe(true);
+    expect(planAllows("premium", "calculator")).toBe(true);
+  });
+  it("estado da empresa aceita só UF de 2 letras", () => {
+    const base = { name: "Loja", slug: "loja", plan: "basic", monthlyFee: 97 };
+    expect(companySchema.safeParse({ ...base, state: "ba" }).data?.state).toBe("BA");
+    expect(companySchema.safeParse({ ...base, state: "Bahia" }).success).toBe(false);
+  });
   it("Premium tem tudo", () => {
     expect(planAllows("premium", "photos")).toBe(true);
     expect(planAllows("premium", "reactivation")).toBe(true);

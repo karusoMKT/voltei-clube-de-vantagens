@@ -3,6 +3,7 @@ import { EntrarForm } from "@/components/EntrarForm";
 import { getCompanyBySlug } from "@/lib/company.functions";
 
 export const Route = createFileRoute("/c/$slug")({
+  validateSearch: (s: Record<string, unknown>): { ref?: string } => (typeof s["ref"] === "string" ? { ref: s["ref"] } : {}),
   loader: async ({ params }) => {
     const company = await getCompanyBySlug({ data: { slug: params.slug } });
     if (!company) throw notFound();
@@ -32,5 +33,6 @@ export const Route = createFileRoute("/c/$slug")({
 
 function Page() {
   const c = Route.useLoaderData();
-  return <EntrarForm slug={c.slug} companyName={c.name} />;
+  const { ref } = Route.useSearch();
+  return <EntrarForm slug={c.slug} companyName={c.name} refCode={ref} />;
 }

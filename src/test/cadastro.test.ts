@@ -22,8 +22,13 @@ describe("cadastro", () => {
     expect(phoneToEmail("(73) 9 0000-0000")).toBe("73900000000@voltei.app");
   });
   it("PIN precisa ter exatamente 6 números", () => {
-    const base = { fullName: "Ana", phone: "(73) 9 0000-0000", instagram: "ana" };
+    const base = { fullName: "Ana", phone: "(73) 9 0000-0000", instagram: "ana", city: "Ilhéus" };
     expect(signupSchema.safeParse({ ...base, pin: "12345" }).success).toBe(false);
     expect(signupSchema.safeParse({ ...base, pin: "123456" }).success).toBe(true);
+  });
+  it("cadastro exige cidade", () => {
+    const base = { fullName: "Ana", phone: "(73) 9 0000-0000", instagram: "ana", pin: "123456" };
+    expect(signupSchema.safeParse(base).success).toBe(false);
+    expect(signupSchema.safeParse({ ...base, city: "Itabuna" }).success).toBe(true);
   });
 });
