@@ -1,4 +1,9 @@
 # Revisão de segurança
+## Convite universal
+- [ ] Unificar código por cliente e vínculo global de indicação, preservando convites antigos.
+- [ ] Pagar uma única vez na primeira compra global, com histórico na loja da compra.
+- [ ] Atualizar compartilhamento e testar troca de loja, primeira compra, repetição e autoindicação.
+
 - [x] Conferir permissões, funções e armazenamento reais.
 - [x] Mostrar SQL e aplicar correções de acesso sem novas funcionalidades.
 - [x] Testar bloqueios e acessos permitidos; registrar resultado (33 testes aprovados).

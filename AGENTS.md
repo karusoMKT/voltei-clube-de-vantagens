@@ -41,5 +41,6 @@ use the editor.
 - Store discovery projects identity fields through a customer-authorized RPC; joining is idempotent and initializes only new memberships at zero points.
 - Company logos use admin-authorized, byte-validated uploads and signed read URLs so workspace public-bucket restrictions do not break authenticated displays.
 - All roles share one PIN form; validate current/new/confirmation and reauthenticate the verified account with Supabase before updating its password.
-- Referrals: codes and referral rows are written only by RPCs; the referrer is paid inside lancar_compra on the invitee's first valid purchase (unique per company/invitee, no self-referral, invitees with prior purchases rejected).
+- Referrals: canonical codes belong to profiles through a unique customer code table; legacy codes are read-only aliases. Referral links and query keys are customer-scoped, not store-scoped, so switching stores never changes identity.
+- Referral payouts are atomic inside lancar_compra, globally unique per invitee and serialized on the invitee profile; a persistent first-purchase marker survives store deletion. Credit the purchasing store's configured bonus to the referrer's membership there, creating it at zero if absent, to preserve isolated store balances.
 - Store discovery filters by the customer's profile city client-side (accent-insensitive); company state is set by an admin-only RPC.
